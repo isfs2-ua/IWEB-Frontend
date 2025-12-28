@@ -1,33 +1,31 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router' // Importar useRoute
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
+
+const route = useRoute() // Obtenemos la ruta actual
 </script>
 
 <template>
   <div class="app-layout">
-    <AppHeader />
+    <AppHeader v-if="!route.meta.hideLayout" />
 
     <main class="main-content">
       <RouterView />
     </main>
 
-    <AppFooter />
+    <AppFooter v-if="!route.meta.hideLayout" />
   </div>
 </template>
 
 <style>
-/* Importamos estilos globales */
 @import './assets/base.css';
 
-/* Layout para asegurar que el footer siempre quede abajo
-   incluso si la página tiene poco contenido */
 .app-layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
-
 .main-content {
   flex: 1;
 }
