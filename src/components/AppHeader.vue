@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import SearchBar from './SearchBar.vue'
 
 // Simulamos una cantidad en el carrito para que se vea el círculo rojo
 const cartCount = ref(3)
@@ -16,25 +17,7 @@ const cartCount = ref(3)
         </div>
 
         <div class="search-bar-container">
-          <div class="search-input-wrapper">
-            <span class="search-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </span>
-            <input type="text" placeholder="¿Qué buscas?" class="search-input" />
-          </div>
+          <SearchBar />
         </div>
 
         <div class="user-actions">
