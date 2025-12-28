@@ -2,12 +2,15 @@
 import { RouterView, useRoute } from 'vue-router' // Importar useRoute
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
+import ToastNotification from '@/components/ToastNotification.vue'
 
 const route = useRoute() // Obtenemos la ruta actual
 </script>
 
 <template>
   <div class="app-layout">
+    <ToastNotification />
+
     <AppHeader v-if="!route.meta.hideLayout" />
 
     <main class="main-content">
