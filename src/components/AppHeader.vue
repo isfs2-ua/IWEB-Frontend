@@ -2,11 +2,15 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router' // Importamos useRouter
 import { useAuthStore } from '@/stores/auth' // Importamos el store
-import SearchBar from './SearchBar.vue'
+import SearchBar from './SearchBar.vue' // Barra de búsqueda
+import BaseModal from './BaseModal.vue' // Modal de confirmación para logout
+import { useNotificationStore } from '@/stores/notification' // Notificaciones
 
 const authStore = useAuthStore()
 const router = useRouter()
 const cartCount = ref(3)
+const showLogoutModal = ref(false)
+const notificationStore = useNotificationStore()
 
 // Lógica del botón de usuario
 const handleUserClick = () => {
@@ -20,9 +24,17 @@ const handleUserClick = () => {
 }
 
 // Lógica del botón de cerrar sesión
-const handleLogout = () => {
+const handleLogoutClick = () => {
+  showLogoutModal.value = true
+}
+
+const confirmLogout = () => {
   authStore.logout()
-  // Redirigimos a la home y forzamos recarga visual
+  showLogoutModal.value = false // Cerramos modal
+
+  // Feedback bonito al usuario
+  notificationStore.showNotification('Has cerrado sesión correctamente.', 'info')
+
   router.push('/')
 }
 </script>
@@ -82,7 +94,7 @@ const handleLogout = () => {
           <button
             v-if="authStore.isAuthenticated"
             class="icon-btn logout-btn"
-            @click="handleLogout"
+            @click="handleLogoutClick"
             title="Cerrar sesión"
           >
             <svg
@@ -154,6 +166,15 @@ const handleLogout = () => {
         </ul>
       </nav>
     </div>
+
+    <BaseModal
+      :show="showLogoutModal"
+      title="Cerrar sesión"
+      @close="showLogoutModal = false"
+      @confirm="confirmLogout"
+    >
+      ¿Estás seguro de que quieres salir de tu cuenta?
+    </BaseModal>
   </header>
 </template>
 
