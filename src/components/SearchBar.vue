@@ -11,7 +11,7 @@ const handleSearch = () => {
     console.log('Buscando:', searchQuery.value)
 
     // Navegamos a la vista de resultados (esto lo configuraremos en el router luego)
-    // router.push({ name: 'search', query: { q: searchQuery.value } });
+    router.push({ name: 'search', query: { q: searchQuery.value } })
 
     // Por ahora, solo limpiamos el input para simular la acción
     searchQuery.value = ''

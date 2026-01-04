@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import ProductCard from '@/components/ProductCard.vue'
 import HeroSlider from '@/components/HeroSlider.vue'
 import type { Product, Category } from '@/types'
+import { useProductStore } from '@/stores/products'
+
+const productStore = useProductStore()
 
 // --- DATOS MOCK (Simulando lo que vendrá de la Base de Datos) ---
 const categories = ref<Category[]>([
@@ -10,53 +13,6 @@ const categories = ref<Category[]>([
   { id: 2, nombre: 'Ciclismo' },
   { id: 3, nombre: 'Fútbol' },
   { id: 4, nombre: 'Baloncesto' },
-])
-
-const featuredProducts = ref<Product[]>([
-  {
-    id: 1,
-    nombre: 'Maillot manga corta',
-    referencia: 101,
-    descripcion: 'Ideal para verano',
-    marca: 'Chilano Castelli',
-    precio: 109.95,
-    precio_oferta: null,
-    visible: true,
-    media: [], // Sin imagen por ahora, saldrá gris
-  },
-  {
-    id: 2,
-    nombre: 'Cortavientos ligero',
-    referencia: 102,
-    descripcion: 'Impermeable',
-    marca: 'Mountain Gear',
-    precio: 79.9,
-    precio_oferta: null,
-    visible: true,
-    media: [],
-  },
-  {
-    id: 3,
-    nombre: 'Botas de Fútbol Future',
-    referencia: 103,
-    descripcion: 'Agarre profesional',
-    marca: 'Puma',
-    precio: 179.95,
-    precio_oferta: null,
-    visible: true,
-    media: [],
-  },
-  {
-    id: 4,
-    nombre: 'Sudadera con capucha',
-    referencia: 104,
-    descripcion: 'Entrenamiento hombre',
-    marca: 'Nike',
-    precio: 85.0,
-    precio_oferta: null,
-    visible: true,
-    media: [],
-  },
 ])
 </script>
 
@@ -85,7 +41,11 @@ const featuredProducts = ref<Product[]>([
         </div>
 
         <div class="products-grid">
-          <ProductCard v-for="product in featuredProducts" :key="product.id" :product="product" />
+          <ProductCard
+            v-for="product in productStore.allProducts"
+            :key="product.id"
+            :product="product"
+          />
         </div>
       </section>
     </div>
