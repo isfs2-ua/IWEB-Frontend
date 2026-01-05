@@ -23,6 +23,16 @@ export interface Category {
   parent_id?: number | null
 }
 
+export interface Review {
+  id: number
+  usuario: string
+  avatar?: string // Opcional
+  valoracion: number // 1 a 5
+  comentario: string
+  fecha: string
+  titulo: string
+}
+
 export interface Product {
   id: number
   nombre: string
@@ -38,6 +48,11 @@ export interface Product {
   genero?: 'Hombre' | 'Mujer' | 'Niño' | 'Niña' | 'Unisex'
   tallas?: string[] // Ej: ['S', 'M', 'L', '40', '42']
   colores?: string[] // Ej: ['Negro', 'Azul', 'Rojo']
+  stock?: number
+  caracteristicas?: string[] // Lista de puntos (bullets)
+  composicion?: string
+  reviews?: Review[]
+  otros_colores_img?: string[] // URLs de las fotitos de otros colores
 }
 
 export interface CartItem {

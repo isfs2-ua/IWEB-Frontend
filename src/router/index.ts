@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import SearchView from '../views/SearchView.vue'
+import ProductDetailView from '../views/ProductDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,17 @@ const router = createRouter({
     {
       path: '/search',
       name: 'search',
+      component: SearchView,
+    },
+    {
+      path: '/product/:id',
+      name: 'product-detail',
+      component: ProductDetailView,
+    },
+    {
+      path: '/category/:categoryName',
+      name: 'category',
+      // Por ahora reutilizamos la vista de búsqueda, ya que es muy parecida (lista de productos)
       component: SearchView,
     },
   ],
