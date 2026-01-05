@@ -63,3 +63,22 @@ export interface CartItem {
   // En el frontend solemos necesitar datos del producto para mostrarlo (nombre, img) así que extendemos un poco la interfaz base de la BD.
   producto?: Product
 }
+
+export interface UserPreferences {
+  id: number
+  alias: string // Ej: "Mi perfil", "Hijo mayor", etc.
+  genero: string
+  talla: string
+  tallaPie: string
+  intereses: string[] // ['Running', 'Tenis']
+}
+
+export interface UserProfile {
+  username: string
+  email: string
+  nombre: string
+  apellidos: string
+  telefono: string
+  fechaNacimiento: string
+  formularios: UserPreferences[]
+}

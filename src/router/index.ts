@@ -4,6 +4,7 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import SearchView from '../views/SearchView.vue'
 import ProductDetailView from '../views/ProductDetailView.vue'
+import ProfileDataView from '@/views/profile/ProfileDataView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,9 +29,8 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
-      // Por ahora reutilizamos el Home o creas un componente vacío
-      component: HomeView,
-      meta: { requiresAuth: true }, // Esto nos servirá luego para proteger la ruta
+      component: ProfileDataView,
+      meta: { requiresAuth: true }, // Esto nos sirve para proteger la ruta
     },
     {
       path: '/search',
