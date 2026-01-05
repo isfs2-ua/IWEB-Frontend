@@ -32,10 +32,12 @@ export interface Product {
   precio: number
   precio_oferta: number | null // Puede ser nulo si no hay oferta
   visible: boolean
-
   media?: Media[]
   variantes?: ProductVariant[]
   categorias?: Category[]
+  genero?: 'Hombre' | 'Mujer' | 'Niño' | 'Niña' | 'Unisex'
+  tallas?: string[] // Ej: ['S', 'M', 'L', '40', '42']
+  colores?: string[] // Ej: ['Negro', 'Azul', 'Rojo']
 }
 
 export interface CartItem {
