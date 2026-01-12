@@ -114,7 +114,7 @@ const confirmLogout = () => {
             </svg>
           </button>
 
-          <button class="icon-btn" title="Favoritos">
+          <button class="icon-btn" title="Favoritos" @click="router.push('/profile/favorites')">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"

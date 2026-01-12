@@ -33,7 +33,9 @@ const handleLogout = () => {
         </li>
 
         <li>
-          <a href="#" :class="{ active: isActive('/profile/favorites') }">Favoritos</a>
+          <RouterLink to="/profile/favorites" :class="{ active: isActive('/profile/favorites') }">
+            Favoritos
+          </RouterLink>
         </li>
 
         <li>
