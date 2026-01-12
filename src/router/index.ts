@@ -60,6 +60,11 @@ const router = createRouter({
       // Por ahora reutilizamos la vista de búsqueda, ya que es muy parecida (lista de productos)
       component: SearchView,
     },
+    {
+      path: '/cart',
+      name: 'cart',
+      component: () => import('../views/CartView.vue'),
+    },
   ],
 })
 

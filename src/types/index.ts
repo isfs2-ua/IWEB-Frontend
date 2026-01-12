@@ -100,3 +100,15 @@ export interface Order {
   estado: string // "Entregado", "En camino", etc.
   items: OrderItem[]
 }
+
+export interface CartItem {
+  id: number // ID único del ítem en el carrito (puede ser distinto al del producto si varía la talla)
+  producto_id: number
+  nombre: string
+  marca: string
+  precio: number
+  precio_oferta: number | null
+  imagen: string
+  cantidad: number
+  talla?: string // Opcional, por si es talla única
+}
