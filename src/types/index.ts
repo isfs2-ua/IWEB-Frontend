@@ -63,3 +63,52 @@ export interface CartItem {
   // En el frontend solemos necesitar datos del producto para mostrarlo (nombre, img) así que extendemos un poco la interfaz base de la BD.
   producto?: Product
 }
+
+export interface UserPreferences {
+  id: number
+  alias: string // Ej: "Mi perfil", "Hijo mayor", etc.
+  genero: string
+  talla: string
+  tallaPie: string
+  intereses: string[] // ['Running', 'Tenis']
+}
+
+export interface UserProfile {
+  username: string
+  email: string
+  nombre: string
+  apellidos: string
+  telefono: string
+  fechaNacimiento: string
+  formularios: UserPreferences[]
+}
+
+export interface OrderItem {
+  id: number
+  producto_id: number
+  nombre: string
+  precio: number
+  cantidad: number
+  imagen: string
+}
+
+export interface Order {
+  id: number
+  numero_pedido: string // Ej: "983247498234"
+  fecha: string // Formato ISO o texto "10/1/2026"
+  total: number
+  estado: string // "Entregado", "En camino", etc.
+  items: OrderItem[]
+}
+
+export interface CartItem {
+  id: number // ID único del ítem en el carrito (puede ser distinto al del producto si varía la talla)
+  producto_id: number
+  nombre: string
+  marca: string
+  precio: number
+  precio_oferta: number | null
+  imagen: string
+  cantidad: number
+  talla?: string // Opcional, por si es talla única
+}

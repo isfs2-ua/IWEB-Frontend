@@ -114,7 +114,7 @@ const confirmLogout = () => {
             </svg>
           </button>
 
-          <button class="icon-btn" title="Favoritos">
+          <button class="icon-btn" title="Favoritos" @click="router.push('/profile/favorites')">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -132,7 +132,7 @@ const confirmLogout = () => {
             </svg>
           </button>
 
-          <button class="icon-btn cart-btn" title="Carrito">
+          <button class="icon-btn cart-btn" title="Carrito" @click="router.push('/cart')">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"

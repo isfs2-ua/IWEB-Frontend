@@ -1,24 +1,38 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import type { UserProfile } from '@/types'
 
 export const useAuthStore = defineStore('auth', () => {
-  // Estado: ¿Hay un usuario logueado?
-  const user = ref<{ email: string; name: string } | null>(null)
+  // Estado: Usamos la interfaz completa
+  const user = ref<UserProfile | null>(null)
 
-  // Getter: ¿Está autenticado?
   const isAuthenticated = computed(() => !!user.value)
 
-  // Acción: Iniciar sesión (Simulado)
   function login(email: string, password: string) {
-    // Aquí conectaríamos con tu Backend real
-    console.log(`Intentando login con ${email} y ${password}`)
+    console.log(`Login con ${email}`)
 
-    // Simulamos éxito
-    user.value = { email, name: 'Usuario Deportivo' }
+    // SIMULAMOS DATOS DE PERFIL COMPLETOS (Como en el mockup)
+    user.value = {
+      username: 'Pepito',
+      email: email, // Usamos el que introdujo
+      nombre: 'Pepe',
+      apellidos: 'Ramírez González',
+      telefono: '696 96 96 96',
+      fechaNacimiento: '2001-01-01',
+      formularios: [
+        {
+          id: 1,
+          alias: 'Principal',
+          genero: 'Hombre',
+          talla: 'L',
+          tallaPie: '44',
+          intereses: ['Tenis'],
+        },
+      ],
+    }
     return true
   }
 
-  // Acción: Cerrar sesión
   function logout() {
     user.value = null
   }
