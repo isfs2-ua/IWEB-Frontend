@@ -29,6 +29,19 @@ export const useAuthStore = defineStore('auth', () => {
           intereses: ['Tenis'],
         },
       ],
+      direcciones: [
+        {
+          id: 1,
+          nombreCompleto: 'Pepito Ramírez González',
+          telefono: '696 96 96 96',
+          calle: 'C/ Pepito, nº 10, 3º B',
+          ciudad: 'San Vicente del Raspeig',
+          codigoPostal: '03690',
+          provincia: 'Alicante',
+          pais: 'España',
+          esPrincipal: true,
+        },
+      ],
     }
     return true
   }

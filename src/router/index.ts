@@ -65,6 +65,12 @@ const router = createRouter({
       name: 'cart',
       component: () => import('../views/CartView.vue'),
     },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: () => import('../views/CheckoutView.vue'),
+      // No ponemos 'requiresAuth' porque el propio componente maneja el caso de usuario no logueado en el Paso 1
+    },
   ],
 })
 
