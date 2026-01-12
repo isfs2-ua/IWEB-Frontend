@@ -82,3 +82,21 @@ export interface UserProfile {
   fechaNacimiento: string
   formularios: UserPreferences[]
 }
+
+export interface OrderItem {
+  id: number
+  producto_id: number
+  nombre: string
+  precio: number
+  cantidad: number
+  imagen: string
+}
+
+export interface Order {
+  id: number
+  numero_pedido: string // Ej: "983247498234"
+  fecha: string // Formato ISO o texto "10/1/2026"
+  total: number
+  estado: string // "Entregado", "En camino", etc.
+  items: OrderItem[]
+}

@@ -33,6 +33,12 @@ const router = createRouter({
       meta: { requiresAuth: true }, // Esto nos sirve para proteger la ruta
     },
     {
+      path: '/profile/orders',
+      name: 'profile-orders',
+      component: () => import('../views/profile/ProfileOrdersView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/search',
       name: 'search',
       component: SearchView,

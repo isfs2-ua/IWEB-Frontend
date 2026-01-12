@@ -25,12 +25,17 @@ const handleLogout = () => {
             Mis Datos
           </RouterLink>
         </li>
+
         <li>
-          <a href="#" :class="{ active: isActive('/profile/orders') }">Mis pedidos</a>
+          <RouterLink to="/profile/orders" :class="{ active: isActive('/profile/orders') }">
+            Mis pedidos
+          </RouterLink>
         </li>
+
         <li>
           <a href="#" :class="{ active: isActive('/profile/favorites') }">Favoritos</a>
         </li>
+
         <li>
           <button @click="handleLogout" class="logout-link">Cerrar sesión</button>
         </li>
