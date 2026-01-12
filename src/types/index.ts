@@ -81,6 +81,19 @@ export interface UserProfile {
   telefono: string
   fechaNacimiento: string
   formularios: UserPreferences[]
+  direcciones: Address[]
+}
+
+export interface Address {
+  id: number
+  nombreCompleto: string
+  calle: string
+  ciudad: string
+  codigoPostal: string
+  provincia: string
+  pais: string
+  telefono: string
+  esPrincipal: boolean
 }
 
 export interface OrderItem {
