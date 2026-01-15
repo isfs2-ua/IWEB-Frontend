@@ -1,53 +1,49 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { UserProfile } from '@/types'
+import type { UserProfile, AuthResponse } from '@/types' // Importamos AuthResponse
+import api from '@/api/axios'
 
 export const useAuthStore = defineStore('auth', () => {
   // Estado: Usamos la interfaz completa
   const user = ref<UserProfile | null>(null)
 
-  const isAuthenticated = computed(() => !!user.value)
+  const token = ref<string | null>(localStorage.getItem('token')) // Gestionamos el token
 
-  function login(email: string, password: string) {
-    console.log(`Login con ${email}`)
+  const isAuthenticated = computed(() => !!token.value) // La autenticación depende del token
 
-    // SIMULAMOS DATOS DE PERFIL COMPLETOS (Como en el mockup)
-    user.value = {
-      username: 'Pepito',
-      email: email, // Usamos el que introdujo
-      nombre: 'Pepe',
-      apellidos: 'Ramírez González',
-      telefono: '696 96 96 96',
-      fechaNacimiento: '2001-01-01',
-      formularios: [
-        {
-          id: 1,
-          alias: 'Principal',
-          genero: 'Hombre',
-          talla: 'L',
-          tallaPie: '44',
-          intereses: ['Tenis'],
-        },
-      ],
-      direcciones: [
-        {
-          id: 1,
-          nombreCompleto: 'Pepito Ramírez González',
-          telefono: '696 96 96 96',
-          calle: 'C/ Pepito, nº 10, 3º B',
-          ciudad: 'San Vicente del Raspeig',
-          codigoPostal: '03690',
-          provincia: 'Alicante',
-          pais: 'España',
-          esPrincipal: true,
-        },
-      ],
+  async function login(email: string, password: string) {
+    try {
+      // Indicamos a TypeScript que esperamos un AuthResponse (Usuario + Token)
+      const response = await api.post<AuthResponse>('/auth/login', {
+        email,
+        password,
+      })
+
+      // Extraemos el token y el resto de datos del usuario
+      const { token: newToken, ...userData } = response.data
+
+      // 1. Guardamos el token
+      token.value = newToken
+      localStorage.setItem('token', newToken)
+
+      // 2. Guardamos los datos del usuario
+      user.value = userData
+
+      // Configurar el header por defecto para futuras peticiones
+      api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+
+      return true
+    } catch (error) {
+      console.error('Error en login:', error)
+      return false
     }
-    return true
   }
 
   function logout() {
     user.value = null
+    token.value = null
+    localStorage.removeItem('token')
+    delete api.defaults.headers.common['Authorization']
   }
 
   return { user, isAuthenticated, login, logout }
