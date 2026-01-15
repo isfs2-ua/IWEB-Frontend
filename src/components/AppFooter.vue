@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// No necesitamos lógica compleja por ahora
+
 </script>
 
 <template>
@@ -9,24 +9,24 @@
         <div class="footer-col">
           <h4>Sobre Tienda Deportiva</h4>
           <ul>
-            <li><a href="#">Quiénes somos</a></li>
-            <li><a href="#">Tienda</a></li>
+            <li><RouterLink to="/about">Quiénes somos</RouterLink></li>
+            <li><RouterLink to="/stores">Tienda</RouterLink></li>
           </ul>
         </div>
 
         <div class="footer-col">
           <h4>Garantías</h4>
           <ul>
-            <li><a href="#">Devoluciones</a></li>
-            <li><a href="#">Compra segura</a></li>
+            <li><RouterLink to="/returns">Devoluciones</RouterLink></li>
+            <li><RouterLink to="/secure-purchase">Compra segura</RouterLink></li>
           </ul>
         </div>
 
         <div class="footer-col">
           <h4>Atención al cliente</h4>
           <ul>
-            <li><a href="#">Ayuda</a></li>
-            <li><a href="#">Facturas</a></li>
+            <li><RouterLink to="/help">Ayuda</RouterLink></li>
+            <li><RouterLink to="/invoices">Facturas</RouterLink></li>
           </ul>
         </div>
 
@@ -45,9 +45,9 @@
 
       <div class="footer-bottom">
         <div class="legal-links">
-          <a href="#">Aviso legal</a>
-          <a href="#">Política de privacidad</a>
-          <a href="#">Política de Cookies</a>
+          <RouterLink to="/legal-advice">Aviso legal</RouterLink>
+          <RouterLink to="/privacy">Política de privacidad</RouterLink>
+          <RouterLink to="/cookies">Política de Cookies</RouterLink>
         </div>
         <div class="copyright">© 2025-2028, Tienda Deportiva</div>
       </div>
@@ -59,9 +59,9 @@
 .footer {
   background-color: white;
   padding: 40px 0 20px;
-  border-top: 1px solid #e0e0e0; /* La línea gris del mockup */
-  margin-top: auto; /* Para que siempre se empuje al fondo si hay poco contenido */
-  font-family: Arial, sans-serif; /* O la fuente que uses globalmente */
+  border-top: 1px solid #e0e0e0;
+  margin-top: auto;
+  font-family: Arial, sans-serif; 
 }
 
 .container {
@@ -70,7 +70,6 @@
   padding: 0 20px;
 }
 
-/* --- Footer Top --- */
 .footer-top {
   display: flex;
   justify-content: space-between;
@@ -107,22 +106,19 @@
   text-decoration: underline;
 }
 
-/* Estilos específicos para banderas */
 .languages li {
   display: flex;
   align-items: center;
 }
+
 .flag {
   margin-right: 8px;
   font-size: 1.2rem;
 }
 
-/* --- Footer Bottom --- */
 .footer-bottom {
   text-align: center;
   padding-top: 20px;
-  /* Opcional: otra línea sutil si quisieras separar legal del resto,
-     pero en el mockup parece todo un bloque limpio */
 }
 
 .legal-links {

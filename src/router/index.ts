@@ -8,6 +8,15 @@ import ProfileDataView from '@/views/profile/ProfileDataView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  },
+  
   routes: [
     {
       path: '/',
@@ -18,7 +27,7 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
-      meta: { hideLayout: true }, // <--- ¡Importante!
+      meta: { hideLayout: true },
     },
     {
       path: '/register',
@@ -71,6 +80,51 @@ const router = createRouter({
       component: () => import('../views/CheckoutView.vue'),
       // No ponemos 'requiresAuth' porque el propio componente maneja el caso de usuario no logueado en el Paso 1
     },
+    {
+      path: '/legal-advice',
+      name: 'legal',
+      component: () => import('../views/footer/LegalView.vue')
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('../views/footer/PrivacyView.vue')
+    },
+    {
+      path: '/returns',
+      name: 'returns',
+      component: () => import('../views/footer/ReturnsView.vue')
+    },
+    {
+      path: '/cookies',
+      name: 'cookies',
+      component: () => import('../views/footer/CookiesView.vue')
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: () => import('../views/footer/AboutView.vue')
+    },
+    {
+      path: '/stores',
+      name: 'stores',
+      component: () => import('../views/footer/StoresView.vue')
+    },
+    {
+      path: '/secure-purchase',
+      name: 'secure-purchase',
+      component: () => import('../views/footer/SecurePucharseView.vue')
+    },
+    {
+      path: '/help',
+      name: 'help',
+      component: () => import('../views/footer/HelpView.vue')
+    },
+    {
+      path: '/invoices',
+      name: 'invoices',
+      component: () => import('../views/footer/InvoicesView.vue')
+    }
   ],
 })
 
