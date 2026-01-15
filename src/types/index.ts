@@ -80,6 +80,7 @@ export interface UserProfile {
   apellidos: string
   telefono: string
   fechaNacimiento: string
+  isAdmin?: boolean
   formularios: UserPreferences[]
   direcciones: Address[]
 }
