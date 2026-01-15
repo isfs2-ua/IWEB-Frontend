@@ -3,51 +3,56 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-const email = ref('')
-const password = ref('')
 const router = useRouter()
 const authStore = useAuthStore()
 
-const handleSubmit = () => {
-  if (email.value && password.value) {
-    // Llamamos a la acción de Pinia
-    authStore.login(email.value, password.value)
+const email = ref('')
+const password = ref('')
+const error = ref('')
 
-    // Redirigimos al usuario a la Home después de loguearse
-    router.push('/')
+const handleLogin = () => {
+  // Intentamos loguearnos
+  const success = authStore.login(email.value, password.value)
+
+  if (success) {
+    // === LÓGICA DE REDIRECCIÓN MODIFICADA ===
+    if (authStore.isAdmin) {
+      console.log('Redirigiendo al panel de Admin...')
+      router.push('/admin')
+    } else {
+      console.log('Redirigiendo a la Home...')
+      router.push('/')
+    }
   } else {
-    alert('Por favor, rellena todos los campos')
+    error.value = 'Usuario o contraseña incorrectos. Prueba con admin@tienda.com'
   }
 }
 </script>
 
 <template>
   <div class="login-container">
-    <div class="login-card">
-      <h2 class="title">Inicia sesión</h2>
+    <div class="login-box">
+      <h1>Bienvenido de nuevo</h1>
+      <p class="subtitle">Introduce tus datos para acceder</p>
 
-      <form @submit.prevent="handleSubmit" class="login-form">
+      <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="email">Correo electrónico</label>
-          <input type="email" id="email" v-model="email" placeholder="Tu email" required />
+          <label>Email</label>
+          <input type="email" v-model="email" placeholder="ej: admin@tienda.com" required />
         </div>
 
         <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            v-model="password"
-            placeholder=".........."
-            required
-          />
+          <label>Contraseña</label>
+          <input type="password" v-model="password" placeholder="********" required />
         </div>
 
-        <button type="submit" class="btn-primary login-btn">Iniciar sesión</button>
+        <p v-if="error" class="error-msg">{{ error }}</p>
+
+        <button type="submit" class="btn-login">Iniciar Sesión</button>
       </form>
 
-      <div class="footer-text">
-        ¿Todavía no tienes cuenta? <RouterLink to="/register">Regístrate</RouterLink>
+      <div class="footer-links">
+        <p>¿No tienes cuenta? <RouterLink to="/register">Regístrate</RouterLink></p>
       </div>
     </div>
   </div>
@@ -55,96 +60,86 @@ const handleSubmit = () => {
 
 <style scoped>
 .login-container {
-  min-height: 100vh;
-  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
-
-  /* Fondo oscuro con imagen de deporte */
-  background-image: url('https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=2069&auto=format&fit=crop');
-  background-size: cover;
-  background-position: center;
-  position: relative;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
 }
 
-/* Capa oscura superpuesta para asegurar contraste si la imagen es muy clara */
-.login-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5); /* Oscurece el fondo un 50% */
-  z-index: 0;
-}
-
-.login-card {
+.login-box {
   background: white;
-  padding: 2.5rem;
-  border-radius: 12px; /* Bordes redondeados */
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  z-index: 1; /* Para estar encima de la capa oscura */
   text-align: center;
 }
 
-.title {
-  color: var(--color-primary);
-  font-weight: 800;
-  margin-bottom: 2rem;
-  font-size: 1.8rem;
+h1 {
+  margin-bottom: 10px;
+  color: #333;
+}
+.subtitle {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 0.9rem;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
   text-align: left;
+  margin-bottom: 20px;
 }
-
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 5px;
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--color-text-main);
 }
-
 .form-group input {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px;
   border: 1px solid #ddd;
-  border-radius: 4px; /* Inputs ligeramente cuadrados como en el mockup */
+  border-radius: 4px;
   font-size: 1rem;
-  transition: border-color 0.3s;
 }
 
-.form-group input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-.login-btn {
+.btn-login {
   width: 100%;
-  margin-top: 1rem;
-  font-size: 1rem;
   padding: 12px;
+  background: var(--color-primary, #ff6b00);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-login:hover {
+  background: #e65100;
 }
 
-.footer-text {
-  margin-top: 1.5rem;
+.error-msg {
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
   font-size: 0.9rem;
-  color: #666;
 }
 
-.footer-text a {
-  color: var(--color-primary);
+.footer-links {
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+.footer-links a {
+  color: var(--color-primary, #ff6b00);
   text-decoration: none;
   font-weight: 600;
 }
-
-.footer-text a:hover {
+.footer-links a:hover {
   text-decoration: underline;
 }
 </style>
