@@ -3,17 +3,14 @@ import { ref } from 'vue'
 import ProductCard from '@/components/ProductCard.vue'
 import HeroSlider from '@/components/HeroSlider.vue'
 import type { Product, Category } from '@/types'
+import { onMounted } from 'vue'
 import { useProductStore } from '@/stores/products'
 
 const productStore = useProductStore()
 
-// --- DATOS MOCK (Simulando lo que vendrá de la Base de Datos) ---
-const categories = ref<Category[]>([
-  { id: 1, nombre: 'Running' },
-  { id: 2, nombre: 'Ciclismo' },
-  { id: 3, nombre: 'Fútbol' },
-  { id: 4, nombre: 'Baloncesto' },
-])
+onMounted(() => {
+  productStore.fetchProducts()
+})
 </script>
 
 <template>
