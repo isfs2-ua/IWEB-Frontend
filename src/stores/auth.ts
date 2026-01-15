@@ -4,7 +4,6 @@ import type { UserProfile, AuthResponse } from '@/types' // Importamos AuthRespo
 import api from '@/api/axios'
 
 export const useAuthStore = defineStore('auth', () => {
-  // Estado: Usamos la interfaz completa
   const user = ref<UserProfile | null>(null)
 
   const token = ref<string | null>(localStorage.getItem('token')) // Gestionamos el token
@@ -46,5 +45,5 @@ export const useAuthStore = defineStore('auth', () => {
     delete api.defaults.headers.common['Authorization']
   }
 
-  return { user, isAuthenticated, login, logout }
+  return { user, isAuthenticated, isAdmin, login, logout }
 })

@@ -71,6 +71,12 @@ const router = createRouter({
       component: () => import('../views/CheckoutView.vue'),
       // No ponemos 'requiresAuth' porque el propio componente maneja el caso de usuario no logueado en el Paso 1
     },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../views/admin/AdminView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }, // Para el futuro
+    },
   ],
 })
 
