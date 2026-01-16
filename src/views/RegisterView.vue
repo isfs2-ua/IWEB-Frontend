@@ -1,270 +1,274 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useNotificationStore } from '@/stores/notification'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const notificationStore = useNotificationStore()
-const currentStep = ref(1)
 
-// Datos del formulario
-const formData = reactive({
-  // PASO 1: Cuenta
-  username: '',
+// Estado del Wizard
+const currentStep = ref(1)
+const totalSteps = 3
+const isLoading = ref(false)
+const errorMessage = ref('')
+
+// Datos del Formulario Completo
+const formData = ref({
+  // Paso 1: Cuenta
   email: '',
+  username: '', // Lo generaremos o pediremos
   password: '',
   confirmPassword: '',
 
-  // PASO 2: Datos Personales
-  firstName: '',
-  lastName: '',
-  phone: '',
-  birthDate: '',
+  // Paso 2: Personal
+  nombre: '',
+  apellidos: '',
+  telefono: '',
+  fechaNacimiento: '',
 
-  // PASO 3: Info Adicional
-  gender: '',
-  size: '',
-  footSize: '',
-  interests: [] as string[],
-  termsAccepted: false,
-  newsletter: false,
+  // Paso 3: Preferencias (Para el formulario inicial)
+  genero: 'Unisex', // Hombre, Mujer, Unisex
+  tallaRopa: '', // S, M, L...
+  tallaPie: '', // 40, 41...
+  intereses: [] as string[], // ['Running', 'Tenis']
 })
 
-const sportsList = ['Running', 'Ciclismo', 'Fútbol', 'Baloncesto', 'Tenis', 'Natación', 'Otro']
+// Opciones para los selectores (Paso 3)
+const tallasRopaOpts = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+const interesesOpts = [
+  'Running',
+  'Ciclismo',
+  'Fútbol',
+  'Baloncesto',
+  'Tenis',
+  'Natación',
+  'Moda Urbana',
+]
 
-// --- LÓGICA DE NAVEGACIÓN ---
+// --- VALIDACIONES ---
+const step1Valid = computed(() => {
+  return (
+    formData.value.email.includes('@') &&
+    formData.value.password.length >= 6 &&
+    formData.value.password === formData.value.confirmPassword
+  )
+})
 
+const step2Valid = computed(() => {
+  return (
+    formData.value.nombre.length > 0 &&
+    formData.value.apellidos.length > 0 &&
+    formData.value.fechaNacimiento !== ''
+  )
+})
+
+const step3Valid = computed(() => {
+  // Opcional: Podríamos obligar a elegir al menos un interés
+  return true
+})
+
+// --- NAVEGACIÓN ---
 const nextStep = () => {
-  if (currentStep.value === 1) {
-    if (!formData.email || !formData.password || formData.password !== formData.confirmPassword) {
-      notificationStore.showNotification(
-        'Revisa los campos y que las contraseñas coincidan.',
-        'error',
-      )
-      return
+  if (currentStep.value === 1 && step1Valid.value) {
+    // Generar username automático si está vacío (ej: parte del email)
+    if (!formData.value.username) {
+      formData.value.username = formData.value.email.split('@')[0]
     }
+    currentStep.value++
+  } else if (currentStep.value === 2 && step2Valid.value) {
+    currentStep.value++
   }
-  if (currentStep.value === 2) {
-    if (!formData.firstName || !formData.lastName || !formData.phone) {
-      notificationStore.showNotification('Completa los datos personales obligatorios.', 'error')
-      return
-    }
-  }
-  currentStep.value++
 }
 
 const prevStep = () => {
   if (currentStep.value > 1) currentStep.value--
 }
 
-const handleSubmit = () => {
-  // Validaciones finales
-  if (!formData.termsAccepted) {
-    notificationStore.showNotification('Debes aceptar los términos y condiciones.', 'error')
-    return
+// --- ENVÍO FINAL ---
+const handleRegister = async () => {
+  errorMessage.value = ''
+  isLoading.value = true
+
+  // Construimos el Payload para el Backend
+  // Adaptamos la estructura plana del form a la estructura UserProfile compleja
+  const payload = {
+    email: formData.value.email,
+    password: formData.value.password,
+    username: formData.value.username,
+    nombre: formData.value.nombre,
+    apellidos: formData.value.apellidos,
+    telefono: formData.value.telefono,
+    fechaNacimiento: formData.value.fechaNacimiento,
+    // Creamos el primer formulario de preferencias
+    formularios: [
+      {
+        alias: 'Principal', // Nombre por defecto
+        genero: formData.value.genero,
+        talla: formData.value.tallaRopa,
+        tallaPie: formData.value.tallaPie,
+        intereses: formData.value.intereses,
+      },
+    ],
   }
 
-  // Aquí iría la llamada real al Backend para crear el usuario (POST /register)
-  console.log('Registrando usuario:', formData)
+  const success = await authStore.register(payload)
 
-  // --- CAMBIO CLAVE: AUTO-LOGIN ---
-  // Una vez registrado con éxito, iniciamos sesión automáticamente en el frontend
-  authStore.login(formData.email, formData.password)
+  isLoading.value = false
 
-  // Opcional: Actualizamos el nombre en el store para que sea el real del registro
-  // (Esto requiere que el store exponga 'user' como modificable, que por defecto en Pinia lo es)
-  if (authStore.user) {
-    authStore.user.name = formData.firstName
+  if (success) {
+    router.push('/perfil')
+  } else {
+    errorMessage.value = 'Hubo un error al registrarse. Verifica los datos.'
   }
-
-  // Notificamos y redirigimos a la HOME
-  notificationStore.showNotification(`¡Bienvenido/a ${formData.firstName}!`, 'success')
-  router.push('/')
 }
 </script>
+
 <template>
-  <div class="register-container">
-    <div class="register-card">
-      <h2 class="title">¡Regístrate en sólo unos minutos!</h2>
-
-      <div class="stepper">
-        <div class="step-item" :class="{ active: currentStep >= 1 }">
-          <div class="step-circle">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </div>
-          <span class="step-label">Cuenta</span>
+  <div class="wizard-container">
+    <div class="wizard-card">
+      <div class="wizard-header">
+        <h2>Registro Guiado</h2>
+        <div class="steps-indicator">
+          <div class="step" :class="{ active: currentStep >= 1 }">1</div>
+          <div class="line" :class="{ active: currentStep >= 2 }"></div>
+          <div class="step" :class="{ active: currentStep >= 2 }">2</div>
+          <div class="line" :class="{ active: currentStep >= 3 }"></div>
+          <div class="step" :class="{ active: currentStep >= 3 }">3</div>
         </div>
-
-        <div class="step-line" :class="{ active: currentStep >= 2 }"></div>
-
-        <div class="step-item" :class="{ active: currentStep >= 2 }">
-          <div class="step-circle">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-            </svg>
-          </div>
-          <span class="step-label">Datos personales</span>
-        </div>
-
-        <div class="step-line" :class="{ active: currentStep >= 3 }"></div>
-
-        <div class="step-item" :class="{ active: currentStep >= 3 }">
-          <div class="step-circle">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="12" y1="8" x2="12" y2="16"></line>
-              <line x1="8" y1="12" x2="16" y2="12"></line>
-            </svg>
-          </div>
-          <span class="step-label">Información adicional</span>
-        </div>
+        <p class="step-title" v-if="currentStep === 1">Datos de Cuenta</p>
+        <p class="step-title" v-if="currentStep === 2">Sobre Ti</p>
+        <p class="step-title" v-if="currentStep === 3">Tus Preferencias</p>
       </div>
 
-      <form @submit.prevent class="wizard-form">
-        <div v-if="currentStep === 1" class="step-content fade-in">
+      <form @submit.prevent="handleRegister" class="wizard-form">
+        <div v-if="currentStep === 1" class="step-content">
           <div class="form-group">
-            <label>Nombre de usuario</label>
-            <input type="text" v-model="formData.username" placeholder="Tu nombre de usuario" />
+            <label>Email</label>
+            <input v-model="formData.email" type="email" placeholder="ejemplo@email.com" required />
           </div>
+
           <div class="form-group">
-            <label>Correo electrónico *</label>
-            <input type="email" v-model="formData.email" placeholder="Tu email" required />
+            <label>Nombre de Usuario (Opcional)</label>
+            <input v-model="formData.username" type="text" placeholder="Como te verán los demás" />
           </div>
+
           <div class="form-group">
-            <label>Contraseña *</label>
-            <input type="password" v-model="formData.password" placeholder=".........." required />
-          </div>
-          <div class="form-group">
-            <label>Repetir contraseña *</label>
+            <label>Contraseña</label>
             <input
+              v-model="formData.password"
               type="password"
+              placeholder="Mínimo 6 caracteres"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Repetir Contraseña</label>
+            <input
               v-model="formData.confirmPassword"
-              placeholder=".........."
+              type="password"
+              placeholder="Confirma la contraseña"
+              :class="{
+                'error-border':
+                  formData.confirmPassword && formData.password !== formData.confirmPassword,
+              }"
               required
             />
           </div>
         </div>
 
-        <div v-if="currentStep === 2" class="step-content fade-in">
-          <div class="form-group">
-            <label>Nombre *</label>
-            <input type="text" v-model="formData.firstName" placeholder="Tu nombre" required />
-          </div>
-          <div class="form-group">
-            <label>Apellidos *</label>
-            <input type="text" v-model="formData.lastName" placeholder="Tus apellidos" required />
-          </div>
-          <div class="form-group">
-            <label>Teléfono móvil *</label>
-            <input type="tel" v-model="formData.phone" placeholder="616 16 16 16" required />
-          </div>
-          <div class="form-group">
-            <label>Fecha de nacimiento</label>
-            <input type="date" v-model="formData.birthDate" />
-          </div>
-        </div>
-
-        <div v-if="currentStep === 3" class="step-content fade-in">
-          <p class="info-text">Personaliza tu experiencia (opcional):</p>
-
-          <div class="two-columns">
-            <div class="col-left">
-              <div class="form-group">
-                <label>Género</label>
-                <select v-model="formData.gender">
-                  <option value="" disabled selected>Hombre / Mujer / Niño...</option>
-                  <option value="hombre">Hombre</option>
-                  <option value="mujer">Mujer</option>
-                  <option value="nino">Niño</option>
-                  <option value="nina">Niña</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Talla</label>
-                <select v-model="formData.size">
-                  <option value="" disabled selected>XXS / XS / S / M / L / XL...</option>
-                  <option value="S">S</option>
-                  <option value="M">M</option>
-                  <option value="L">L</option>
-                  <option value="XL">XL</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Talla de pie</label>
-                <input type="number" v-model="formData.footSize" placeholder="Nº pie" />
-              </div>
+        <div v-if="currentStep === 2" class="step-content">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input v-model="formData.nombre" type="text" required />
             </div>
-
-            <div class="col-right">
-              <label class="checkbox-group-label">Interés por el deporte:</label>
-              <div class="checkbox-list">
-                <label v-for="sport in sportsList" :key="sport" class="checkbox-item">
-                  <input type="checkbox" :value="sport" v-model="formData.interests" />
-                  <span>{{ sport }}</span>
-                </label>
-              </div>
+            <div class="form-group">
+              <label>Apellidos</label>
+              <input v-model="formData.apellidos" type="text" required />
             </div>
           </div>
 
-          <div class="legal-checks">
-            <label class="checkbox-item">
-              <input type="checkbox" v-model="formData.termsAccepted" required />
-              <span>He leído y acepto los <a href="#">términos y condiciones</a> *.</span>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" v-model="formData.newsletter" />
-              <span>Acepto recibir novedades y ofertas promocionales.</span>
-            </label>
+          <div class="form-group">
+            <label>Fecha de Nacimiento</label>
+            <input v-model="formData.fechaNacimiento" type="date" required />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input v-model="formData.telefono" type="tel" placeholder="600 00 00 00" />
           </div>
         </div>
 
-        <div class="buttons-row">
-          <button v-if="currentStep > 1" type="button" class="btn-secondary" @click="prevStep">
-            Anterior
+        <div v-if="currentStep === 3" class="step-content">
+          <div class="intro-text">
+            <p>Ayúdanos a recomendarte lo mejor.</p>
+          </div>
+
+          <div class="form-group">
+            <label>Género Principal</label>
+            <select v-model="formData.genero">
+              <option value="Hombre">Hombre</option>
+              <option value="Mujer">Mujer</option>
+              <option value="Unisex">No especificar / Unisex</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Talla Camiseta</label>
+              <select v-model="formData.tallaRopa">
+                <option value="" disabled>Elige...</option>
+                <option v-for="t in tallasRopaOpts" :key="t" :value="t">{{ t }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Talla Pie</label>
+              <input
+                v-model="formData.tallaPie"
+                type="number"
+                placeholder="Ej: 42"
+                min="30"
+                max="50"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Intereses (Deportes)</label>
+            <div class="tags-container">
+              <label
+                v-for="interes in interesesOpts"
+                :key="interes"
+                class="tag-checkbox"
+                :class="{ active: formData.intereses.includes(interes) }"
+              >
+                <input type="checkbox" :value="interes" v-model="formData.intereses" hidden />
+                {{ interes }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
+
+        <div class="wizard-actions">
+          <button type="button" class="btn-secondary" v-if="currentStep > 1" @click="prevStep">
+            Atrás
           </button>
 
-          <button v-if="currentStep < 3" type="button" class="btn-primary" @click="nextStep">
+          <button
+            type="button"
+            class="btn-primary"
+            v-if="currentStep < 3"
+            @click="nextStep"
+            :disabled="(currentStep === 1 && !step1Valid) || (currentStep === 2 && !step2Valid)"
+          >
             Siguiente
           </button>
 
-          <button v-if="currentStep === 3" type="button" class="btn-primary" @click="handleSubmit">
-            Siguiente
+          <button type="submit" class="btn-success" v-if="currentStep === 3" :disabled="isLoading">
+            {{ isLoading ? 'Creando cuenta...' : 'Finalizar Registro' }}
           </button>
         </div>
       </form>
@@ -273,118 +277,81 @@ const handleSubmit = () => {
 </template>
 
 <style scoped>
-/* Contenedor Principal (Igual que Login) */
-.register-container {
-  min-height: 100vh;
-  width: 100%;
+.wizard-container {
+  min-height: 85vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-  background-image: url('https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=2070&auto=format&fit=crop');
-  background-size: cover;
-  background-position: center;
-  position: relative;
+  align-items: center;
+  background-color: #f4f4f4;
   padding: 20px;
 }
 
-.register-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 0;
-}
-
-/* Tarjeta */
-.register-card {
+.wizard-card {
   background: white;
-  padding: 2rem;
-  border-radius: 12px;
   width: 100%;
-  max-width: 600px; /* Un poco más ancha que el login para que quepa todo */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  text-align: center;
-}
-
-.title {
-  color: var(--color-primary);
-  font-weight: 800;
-  margin-bottom: 2rem;
-  font-size: 1.5rem;
-}
-
-/* --- STEPPER STYLES --- */
-.stepper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding: 0 10px;
-}
-
-.step-item {
+  max-width: 550px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
   display: flex;
   flex-direction: column;
+}
+
+/* Header & Steps */
+.wizard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.wizard-header h2 {
+  color: var(--color-heading);
+  margin-bottom: 1.5rem;
+}
+.steps-indicator {
+  display: flex;
+  justify-content: center;
   align-items: center;
-  position: relative;
-  z-index: 2;
-  color: #ccc; /* Color inactivo */
+  margin-bottom: 0.5rem;
 }
-
-.step-item.active {
-  color: var(--color-primary); /* Color activo */
-}
-
-.step-circle {
-  width: 40px;
-  height: 40px;
+.step {
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
-  border: 2px solid currentColor;
+  background: #eee;
+  color: #777;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
-  margin-bottom: 5px;
+  font-weight: bold;
   transition: all 0.3s;
 }
-
-.step-item.active .step-circle {
-  background: var(--color-primary);
+.step.active {
+  background: var(--color-primary, #ff6600);
   color: white;
-  border-color: var(--color-primary);
+}
+.line {
+  width: 50px;
+  height: 3px;
+  background: #eee;
+  margin: 0 5px;
+}
+.line.active {
+  background: var(--color-primary, #ff6600);
+}
+.step-title {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 5px;
 }
 
-.step-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.step-line {
-  flex: 1;
-  height: 2px;
-  background: #e0e0e0;
-  margin: 0 10px;
-  margin-bottom: 15px; /* Ajuste para alinear con los círculos */
-}
-
-.step-line.active {
-  background: var(--color-primary);
-}
-
-/* --- FORM STYLES --- */
+/* Forms */
 .form-group {
-  margin-bottom: 1rem;
-  text-align: left;
+  margin-bottom: 1.2rem;
 }
 .form-group label {
   display: block;
-  margin-bottom: 0.3rem;
   font-weight: 600;
-  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
   color: #333;
 }
 .form-group input,
@@ -392,131 +359,81 @@ const handleSubmit = () => {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.95rem;
+  border-radius: 6px;
+  font-size: 1rem;
 }
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-/* Info Adicional (Paso 3) - Dos Columnas */
-.info-text {
-  font-weight: bold;
-  margin-bottom: 15px;
-  text-align: left;
-  text-decoration: underline;
-  font-size: 0.9rem;
-}
-
-.two-columns {
+.form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  text-align: left;
-}
-
-.checkbox-group-label {
-  font-weight: 600;
-  font-size: 0.85rem;
-  display: block;
-  margin-bottom: 8px;
-}
-
-.checkbox-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-  color: #555;
-  cursor: pointer;
-}
-.checkbox-item input {
-  margin-right: 8px;
-  accent-color: var(--color-primary);
-}
-.checkbox-item a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-.legal-checks {
-  margin-top: 20px;
-  text-align: left;
-  border-top: 1px solid #eee;
-  padding-top: 15px;
-}
-
-/* BOTONES */
-.buttons-row {
-  display: flex;
-  justify-content: flex-end; /* Alinea a la derecha por defecto */
   gap: 15px;
+}
+.error-border {
+  border-color: red !important;
+}
+
+/* Tags Intereses */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tag-checkbox {
+  padding: 8px 16px;
+  background: #f0f0f0;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  user-select: none;
+}
+.tag-checkbox.active {
+  background: var(--color-primary, #ff6600);
+  color: white;
+  font-weight: bold;
+}
+
+/* Buttons */
+.wizard-actions {
+  display: flex;
+  justify-content: space-between;
   margin-top: 2rem;
 }
-
-/* Si hay botón anterior, usamos space-between para separarlos */
-.buttons-row:has(.btn-secondary) {
-  justify-content: space-between;
+.btn-primary,
+.btn-secondary,
+.btn-success {
+  padding: 10px 24px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 600;
 }
-
 .btn-primary {
-  background: var(--color-primary);
+  background: var(--color-primary, #ff6600);
   color: white;
-  border: none;
-  padding: 10px 25px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
+  margin-left: auto; /* Push to right */
 }
-.btn-primary:hover {
-  background: #e55a2b;
-}
-
 .btn-secondary {
-  background: #999;
+  background: #e0e0e0;
+  color: #333;
+}
+.btn-success {
+  background: #28a745;
   color: white;
-  border: none;
-  padding: 10px 25px;
+  margin-left: auto;
+}
+.btn-primary:disabled,
+.btn-success:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.error-msg {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+  background: #fff5f5;
+  padding: 5px;
   border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-}
-.btn-secondary:hover {
-  background: #777;
-}
-
-/* Animación simple */
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .two-columns {
-    grid-template-columns: 1fr;
-  } /* Apilar columnas en móvil */
-  .stepper {
-    padding: 0;
-  }
-  .step-label {
-    display: none;
-  } /* Ocultar etiquetas en móvil si falta espacio */
 }
 </style>
