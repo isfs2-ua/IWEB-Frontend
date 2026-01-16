@@ -8,8 +8,9 @@ const router = useRouter()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 const currentStep = ref(1)
+const isLoading = ref(false)
 
-// Datos del formulario
+// Datos del formulario (Estructura de tu diseño)
 const formData = reactive({
   // PASO 1: Cuenta
   username: '',
@@ -35,7 +36,6 @@ const formData = reactive({
 const sportsList = ['Running', 'Ciclismo', 'Fútbol', 'Baloncesto', 'Tenis', 'Natación', 'Otro']
 
 // --- LÓGICA DE NAVEGACIÓN ---
-
 const nextStep = () => {
   if (currentStep.value === 1) {
     if (!formData.email || !formData.password || formData.password !== formData.confirmPassword) {
@@ -59,31 +59,52 @@ const prevStep = () => {
   if (currentStep.value > 1) currentStep.value--
 }
 
-const handleSubmit = () => {
-  // Validaciones finales
+// --- ENVÍO AL BACKEND ---
+const handleSubmit = async () => {
+  // 1. Validaciones finales
   if (!formData.termsAccepted) {
     notificationStore.showNotification('Debes aceptar los términos y condiciones.', 'error')
     return
   }
 
-  // Aquí iría la llamada real al Backend para crear el usuario (POST /register)
-  console.log('Registrando usuario:', formData)
+  isLoading.value = true
 
-  // --- CAMBIO CLAVE: AUTO-LOGIN ---
-  // Una vez registrado con éxito, iniciamos sesión automáticamente en el frontend
-  authStore.login(formData.email, formData.password)
-
-  // Opcional: Actualizamos el nombre en el store para que sea el real del registro
-  // (Esto requiere que el store exponga 'user' como modificable, que por defecto en Pinia lo es)
-  if (authStore.user) {
-    authStore.user.name = formData.firstName
+  // 2. Transformar datos: De tu diseño -> Al formato del Backend
+  // (Creamos el objeto UserProfile + UserPreferences al vuelo)
+  const payload = {
+    username: formData.username || formData.email.split('@')[0], // Fallback si no pone usuario
+    email: formData.email,
+    password: formData.password,
+    nombre: formData.firstName,
+    apellidos: formData.lastName,
+    telefono: formData.phone,
+    fechaNacimiento: formData.birthDate,
+    // Creamos el primer perfil de preferencias
+    formularios: [
+      {
+        alias: 'Principal',
+        genero: formData.gender || 'Unisex',
+        talla: formData.size,
+        tallaPie: formData.footSize,
+        intereses: formData.interests,
+      },
+    ],
   }
 
-  // Notificamos y redirigimos a la HOME
-  notificationStore.showNotification(`¡Bienvenido/a ${formData.firstName}!`, 'success')
-  router.push('/')
+  // 3. Llamada Real
+  const success = await authStore.register(payload)
+
+  isLoading.value = false
+
+  if (success) {
+    notificationStore.showNotification(`¡Bienvenido/a ${formData.firstName}!`, 'success')
+    router.push('/') // O a /perfil si prefieres
+  } else {
+    notificationStore.showNotification('Error al registrarse. Verifica el email.', 'error')
+  }
 }
 </script>
+
 <template>
   <div class="register-container">
     <div class="register-card">
@@ -209,16 +230,17 @@ const handleSubmit = () => {
                 <label>Género</label>
                 <select v-model="formData.gender">
                   <option value="" disabled selected>Hombre / Mujer / Niño...</option>
-                  <option value="hombre">Hombre</option>
-                  <option value="mujer">Mujer</option>
-                  <option value="nino">Niño</option>
-                  <option value="nina">Niña</option>
+                  <option value="Hombre">Hombre</option>
+                  <option value="Mujer">Mujer</option>
+                  <option value="Niño">Niño</option>
+                  <option value="Niña">Niña</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>Talla</label>
                 <select v-model="formData.size">
-                  <option value="" disabled selected>XXS / XS / S / M / L / XL...</option>
+                  <option value="" disabled selected>Elige...</option>
+                  <option value="XS">XS</option>
                   <option value="S">S</option>
                   <option value="M">M</option>
                   <option value="L">L</option>
@@ -263,8 +285,14 @@ const handleSubmit = () => {
             Siguiente
           </button>
 
-          <button v-if="currentStep === 3" type="button" class="btn-primary" @click="handleSubmit">
-            Siguiente
+          <button
+            v-if="currentStep === 3"
+            type="button"
+            class="btn-primary"
+            @click="handleSubmit"
+            :disabled="isLoading"
+          >
+            {{ isLoading ? 'Registrando...' : 'Crear Cuenta' }}
           </button>
         </div>
       </form>
@@ -273,7 +301,7 @@ const handleSubmit = () => {
 </template>
 
 <style scoped>
-/* Contenedor Principal (Igual que Login) */
+/* Tus estilos visuales originales */
 .register-container {
   min-height: 100vh;
   width: 100%;
@@ -286,7 +314,6 @@ const handleSubmit = () => {
   position: relative;
   padding: 20px;
 }
-
 .register-container::before {
   content: '';
   position: absolute;
@@ -297,27 +324,22 @@ const handleSubmit = () => {
   background: rgba(0, 0, 0, 0.6);
   z-index: 0;
 }
-
-/* Tarjeta */
 .register-card {
   background: white;
   padding: 2rem;
   border-radius: 12px;
   width: 100%;
-  max-width: 600px; /* Un poco más ancha que el login para que quepa todo */
+  max-width: 600px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   z-index: 1;
   text-align: center;
 }
-
 .title {
-  color: var(--color-primary);
+  color: var(--color-primary, #ff6600);
   font-weight: 800;
   margin-bottom: 2rem;
   font-size: 1.5rem;
 }
-
-/* --- STEPPER STYLES --- */
 .stepper {
   display: flex;
   justify-content: space-between;
@@ -325,20 +347,17 @@ const handleSubmit = () => {
   margin-bottom: 2rem;
   padding: 0 10px;
 }
-
 .step-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   z-index: 2;
-  color: #ccc; /* Color inactivo */
+  color: #ccc;
 }
-
 .step-item.active {
-  color: var(--color-primary); /* Color activo */
+  color: var(--color-primary, #ff6600);
 }
-
 .step-circle {
   width: 40px;
   height: 40px;
@@ -351,31 +370,24 @@ const handleSubmit = () => {
   margin-bottom: 5px;
   transition: all 0.3s;
 }
-
 .step-item.active .step-circle {
-  background: var(--color-primary);
+  background: var(--color-primary, #ff6600);
   color: white;
-  border-color: var(--color-primary);
+  border-color: var(--color-primary, #ff6600);
 }
-
 .step-label {
   font-size: 0.75rem;
   font-weight: 600;
 }
-
 .step-line {
   flex: 1;
   height: 2px;
   background: #e0e0e0;
-  margin: 0 10px;
-  margin-bottom: 15px; /* Ajuste para alinear con los círculos */
+  margin: 0 10px 15px 10px;
 }
-
 .step-line.active {
-  background: var(--color-primary);
+  background: var(--color-primary, #ff6600);
 }
-
-/* --- FORM STYLES --- */
 .form-group {
   margin-bottom: 1rem;
   text-align: left;
@@ -395,13 +407,10 @@ const handleSubmit = () => {
   border-radius: 4px;
   font-size: 0.95rem;
 }
-.form-group input:focus,
-.form-group select:focus {
+.form-group input:focus {
   outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--color-primary, #ff6600);
 }
-
-/* Info Adicional (Paso 3) - Dos Columnas */
 .info-text {
   font-weight: bold;
   margin-bottom: 15px;
@@ -409,27 +418,23 @@ const handleSubmit = () => {
   text-decoration: underline;
   font-size: 0.9rem;
 }
-
 .two-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   text-align: left;
 }
-
 .checkbox-group-label {
   font-weight: 600;
   font-size: 0.85rem;
   display: block;
   margin-bottom: 8px;
 }
-
 .checkbox-list {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
-
 .checkbox-item {
   display: flex;
   align-items: center;
@@ -439,35 +444,25 @@ const handleSubmit = () => {
 }
 .checkbox-item input {
   margin-right: 8px;
-  accent-color: var(--color-primary);
+  accent-color: var(--color-primary, #ff6600);
 }
-.checkbox-item a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
 .legal-checks {
   margin-top: 20px;
   text-align: left;
   border-top: 1px solid #eee;
   padding-top: 15px;
 }
-
-/* BOTONES */
 .buttons-row {
   display: flex;
-  justify-content: flex-end; /* Alinea a la derecha por defecto */
+  justify-content: flex-end;
   gap: 15px;
   margin-top: 2rem;
 }
-
-/* Si hay botón anterior, usamos space-between para separarlos */
 .buttons-row:has(.btn-secondary) {
   justify-content: space-between;
 }
-
 .btn-primary {
-  background: var(--color-primary);
+  background: var(--color-primary, #ff6600);
   color: white;
   border: none;
   padding: 10px 25px;
@@ -475,10 +470,10 @@ const handleSubmit = () => {
   cursor: pointer;
   font-weight: bold;
 }
-.btn-primary:hover {
-  background: #e55a2b;
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
-
 .btn-secondary {
   background: #999;
   color: white;
@@ -488,11 +483,6 @@ const handleSubmit = () => {
   cursor: pointer;
   font-weight: bold;
 }
-.btn-secondary:hover {
-  background: #777;
-}
-
-/* Animación simple */
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
 }
@@ -506,17 +496,15 @@ const handleSubmit = () => {
     transform: translateY(0);
   }
 }
-
-/* Responsive */
 @media (max-width: 600px) {
   .two-columns {
     grid-template-columns: 1fr;
-  } /* Apilar columnas en móvil */
+  }
   .stepper {
     padding: 0;
   }
   .step-label {
     display: none;
-  } /* Ocultar etiquetas en móvil si falta espacio */
+  }
 }
 </style>
