@@ -1,0 +1,44 @@
+{
+  "header": {
+    "profile": "Ir a mi perfil",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "favorites": "Favoritos",
+    "cart": "Carrito",
+    "logout_success": "Has cerrado sesión correctamente.",
+    "modal": {
+      "title": "Cerrar sesión",
+      "message": "¿Estás seguro de que quieres salir de tu cuenta?"
+    }
+  },
+  "nav": {
+    "running": "Running",
+    "cycling": "Ciclismo",
+    "football": "Fútbol",
+    "basketball": "Baloncesto",
+    "tennis": "Tenis",
+    "swimming": "Natación",
+    "more_sports": "Más deportes",
+    "nutrition": "Nutrición y recuperación"
+  },
+  "footer": {
+    "about": "Sobre Nosotros",
+    "who_we_are": "Quiénes somos",
+    "stores": "Nuestras Tiendas",
+    "guarantees": "Garantías",
+    "secure_purchase": "Compra segura",
+    "returns": "Envíos y devoluciones",
+    "customer_support": "Atención al Cliente",
+    "help": "Ayuda",
+    "invoices": "Facturas",
+    "legal": "Aviso Legal",
+    "privacy": "Política de Privacidad",
+    "cookies": "Política de Cookies",
+    "rights": "Todos los derechos reservados.",
+    "language": "Idiomas"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
+  }
+}

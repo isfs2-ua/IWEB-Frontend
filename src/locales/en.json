@@ -1,0 +1,44 @@
+{
+  "header": {
+    "profile": "Go to profile",
+    "login": "Login",
+    "logout": "Logout",
+    "favorites": "Favorites",
+    "cart": "Cart",
+    "logout_success": "You have logged out successfully.",
+    "modal": {
+      "title": "Logout",
+      "message": "Are you sure you want to log out?"
+    }
+  },
+  "nav": {
+    "running": "Running",
+    "cycling": "Cycling",
+    "football": "Football",
+    "basketball": "Basketball",
+    "tennis": "Tennis",
+    "swimming": "Swimming",
+    "more_sports": "More sports",
+    "nutrition": "Nutrition & recovery"
+  },
+  "footer": {
+    "about": "About Us",
+    "who_we_are": "Who we are",
+    "stores": "Our Stores",
+    "guarantees": "Guarantees",
+    "secure_purchase": "Secure Purchase",
+    "returns": "Shipping & Returns",
+    "customer_support": "Customer Support",
+    "help": "Help",
+    "invoices": "Invoices",
+    "legal": "Legal Notice",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookies Policy",
+    "rights": "All rights reserved.",
+    "language": "Languages"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+}

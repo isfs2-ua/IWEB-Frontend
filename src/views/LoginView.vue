@@ -32,7 +32,7 @@ const handleLogin = () => {
 <template>
   <div class="login-container">
     <div class="login-box">
-      <h1>Bienvenido de nuevo</h1>
+      <h1>{{ $t('login.welcome') }}</h1>
       <p class="subtitle">Introduce tus datos para acceder</p>
 
       <form @submit.prevent="handleLogin">

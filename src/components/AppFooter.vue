@@ -1,5 +1,18 @@
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n';
 
+  // Obtenemos el objeto 'locale' que controla el idioma actual
+  const { locale } = useI18n();
+
+  // Función para cambiar el idioma
+  const changeLanguage = (lang: string) => {
+    // Solo cambiamos si es distinto al actual (como pediste)
+    if (locale.value !== lang) {
+      locale.value = lang;
+      // Opcional: Guardar en localStorage para recordar la elección
+      localStorage.setItem('user-locale', lang);
+    }
+  };
 </script>
 
 <template>
@@ -7,47 +20,58 @@
     <div class="container">
       <div class="footer-top">
         <div class="footer-col">
-          <h4>Sobre Tienda Deportiva</h4>
+          <h4>{{ $t('footer.about') }}</h4>
           <ul>
-            <li><RouterLink to="/about">Quiénes somos</RouterLink></li>
-            <li><RouterLink to="/stores">Tienda</RouterLink></li>
+            <li><RouterLink to="/about">{{ $t('footer.who_we_are') }}</RouterLink></li>
+            <li><RouterLink to="/stores">{{ $t('footer.stores') }}</RouterLink></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <h4>Garantías</h4>
+          <h4>{{ $t('footer.guarantees') }}</h4>
           <ul>
-            <li><RouterLink to="/returns">Devoluciones</RouterLink></li>
-            <li><RouterLink to="/secure-purchase">Compra segura</RouterLink></li>
+            <li><RouterLink to="/returns">{{ $t('footer.returns') }}</RouterLink></li>
+            <li><RouterLink to="/secure-purchase">{{ $t('footer.secure_purchase') }}</RouterLink></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <h4>Atención al cliente</h4>
+          <h4>{{ $t('footer.customer_support') }}</h4>
           <ul>
-            <li><RouterLink to="/help">Ayuda</RouterLink></li>
-            <li><RouterLink to="/invoices">Facturas</RouterLink></li>
+            <li><RouterLink to="/help">{{ $t('footer.help') }}</RouterLink></li>
+            <li><RouterLink to="/invoices">{{ $t('footer.invoices') }}</RouterLink></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <h4>Tienda Deportiva en</h4>
-          <ul class="languages">
-            <li>
-              <a href="#"> <span class="flag">🇪🇸</span> Español </a>
-            </li>
-            <li>
-              <a href="#"> <span class="flag">🇬🇧</span> Inglés </a>
-            </li>
-          </ul>
+          <h4>{{ $t('footer.language') }}</h4>
+          <div class="language-selector">
+  <button 
+    @click="changeLanguage('es')" 
+    :class="{ 'active': locale === 'es' }"
+    title="Cambiar a Español"
+  >
+    ES 🇪🇸
+  </button>
+  
+  <span> | </span>
+
+  <button 
+    @click="changeLanguage('en')" 
+    :class="{ 'active': locale === 'en' }"
+    title="Switch to English"
+  >
+    EN 🇬🇧
+  </button>
+</div>
         </div>
       </div>
 
       <div class="footer-bottom">
         <div class="legal-links">
-          <RouterLink to="/legal-advice">Aviso legal</RouterLink>
-          <RouterLink to="/privacy">Política de privacidad</RouterLink>
-          <RouterLink to="/cookies">Política de Cookies</RouterLink>
+          <RouterLink to="/legal-advice">{{ $t('footer.legal') }}</RouterLink>
+          <RouterLink to="/privacy">{{ $t('footer.privacy') }}</RouterLink>
+          <RouterLink to="/cookies">{{ $t('footer.cookies') }}</RouterLink>
         </div>
         <div class="copyright">© 2025-2028, Tienda Deportiva</div>
       </div>
