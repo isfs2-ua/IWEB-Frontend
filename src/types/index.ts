@@ -85,8 +85,9 @@ export interface UserProfile {
   direcciones: Address[]
 }
 
-export interface AuthResponse extends UserProfile {
+export interface AuthResponse {
   token: string
+  user: UserProfile
 }
 
 export interface Address {
