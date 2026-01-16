@@ -21,15 +21,17 @@ const favoriteProducts = computed(() => {
     <ProfileSidebar />
 
     <div class="profile-content">
-      <h1 class="page-title">Favoritos</h1>
+      <h1 class="page-title">{{ $t('profile.favorites_page.title') }}</h1>
 
       <div v-if="favoriteProducts.length > 0" class="favorites-grid">
         <FavoriteCard v-for="product in favoriteProducts" :key="product!.id" :product="product!" />
       </div>
 
       <div v-else class="empty-state">
-        <p>No tienes artículos en tu lista de deseos.</p>
-        <RouterLink to="/" class="btn-link">Explorar productos</RouterLink>
+        <p>{{ $t('profile.favorites_page.empty') }}</p>
+        <RouterLink to="/" class="btn-link">
+          {{ $t('profile.favorites_page.explore') }}
+        </RouterLink>
       </div>
     </div>
   </div>

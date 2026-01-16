@@ -1,35 +1,32 @@
 <template>
   <div class="legal-container">
     <div class="legal-content">
-      <h1 class="text-orange">Nuestras Tiendas</h1>
-      <p class="intro">Aunque nuestra alma es digital, puedes encontrarnos en el corazón del campus universitario.</p>
+      <h1 class="text-orange">{{ $t('stores.title') }}</h1>
+      <p class="intro">{{ $t('stores.intro') }}</p>
 
       <section>
-        <h2>📍 Sede Central</h2>
+        <h2>{{ $t('stores.central.title') }}</h2>
         <div class="store-box">
           <div class="store-info">
-            <h3>Campus San Vicente</h3>
-            <p>Carretera de San Vicente del Raspeig s/n</p>
-            <p>03690 San Vicente del Raspeig (Alicante)</p>
-            <p><strong>Edificio Politécnica IV</strong></p>
+            <h3>{{ $t('stores.central.name') }}</h3>
+            <p>{{ $t('stores.central.address1') }}</p>
+            <p>{{ $t('stores.central.address2') }}</p>
+            <p v-html="$t('stores.central.building')"></p>
           </div>
           <div class="store-hours">
-            <h3>Horario de Atención</h3>
+            <h3>{{ $t('stores.hours.title') }}</h3>
             <ul>
-              <li><strong>Lunes - Viernes:</strong> 09:00 - 20:00</li>
-              <li><strong>Sábados:</strong> 10:00 - 14:00</li>
-              <li><strong>Domingos:</strong> Cerrado (¡Estamos programando!)</li>
+              <li v-html="$t('stores.hours.week')"></li>
+              <li v-html="$t('stores.hours.saturday')"></li>
+              <li v-html="$t('stores.hours.sunday')"></li>
             </ul>
           </div>
         </div>
       </section>
 
       <section>
-        <h2>🌍 Venta Online</h2>
-        <p>
-          Recuerda que nuestra tienda online está abierta las <strong>24 horas del día, los 365 días del año</strong>. 
-          Realiza tu pedido desde cualquier lugar y recíbelo cómodamente.
-        </p>
+        <h2>{{ $t('stores.online.title') }}</h2>
+        <p v-html="$t('stores.online.text')"></p>
       </section>
     </div>
   </div>

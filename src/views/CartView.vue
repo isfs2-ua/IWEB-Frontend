@@ -2,35 +2,45 @@
 import { useCartStore } from '@/stores/cart'
 import { useNotificationStore } from '@/stores/notification'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t, locale } = useI18n()
 const cartStore = useCartStore()
 const notificationStore = useNotificationStore()
 const router = useRouter()
+
+// Función auxiliar para formatear precios según el idioma
+const formatPrice = (price: number) => {
+  return price.toLocaleString(locale.value, { 
+    minimumFractionDigits: 2, 
+    maximumFractionDigits: 2 
+  })
+}
 
 // Acciones
 const increment = (id: number) => cartStore.updateQuantity(id, 1)
 const decrement = (id: number) => cartStore.updateQuantity(id, -1)
 const remove = (id: number) => {
-  if (confirm('¿Seguro que quieres eliminar este producto?')) {
+  if (confirm(t('cart.confirm_remove'))) {
     cartStore.removeItem(id)
-    notificationStore.showNotification('Producto eliminado', 'info')
+    notificationStore.showNotification(t('notifications.product_removed'), 'info')
   }
 }
 
 const moveToFavorites = () => {
-  notificationStore.showNotification('Movido a favoritos', 'success')
+  notificationStore.showNotification(t('notifications.moved_to_favorites'), 'success')
   // Aquí llamarías a wishlistStore.toggleWishlist(...)
 }
 
 const goToCheckout = () => {
-  router.push('/checkout') // Próximo paso: Página de pago
+  router.push('/checkout')
 }
 </script>
 
 <template>
   <div class="container cart-page">
     <div class="cart-items-section">
-      <h1 class="page-title">Tu carrito</h1>
+      <h1 class="page-title">{{ $t('cart.title') }}</h1>
 
       <div v-if="cartStore.items.length > 0" class="items-list">
         <div v-for="item in cartStore.items" :key="item.id" class="cart-item">
@@ -43,14 +53,14 @@ const goToCheckout = () => {
 
             <div class="controls-row">
               <div v-if="item.talla" class="size-selector">
-                <label>Talla</label>
+                <label>{{ $t('cart.size') }}</label>
                 <select class="size-input">
                   <option selected>{{ item.talla }}</option>
                 </select>
               </div>
 
               <div class="qty-selector">
-                <label>Cantidad</label>
+                <label>{{ $t('cart.quantity') }}</label>
                 <div class="qty-controls">
                   <button @click="decrement(item.id)" :disabled="item.cantidad <= 1">-</button>
                   <input type="text" :value="item.cantidad" readonly />
@@ -60,77 +70,77 @@ const goToCheckout = () => {
             </div>
 
             <div class="item-actions">
-              <button class="action-btn" @click="moveToFavorites" title="Mover a favoritos">
+              <button class="action-btn" @click="moveToFavorites" :title="$t('cart.move_to_favorites')">
                 ♡
               </button>
-              <button class="action-btn trash" @click="remove(item.id)" title="Eliminar">🗑️</button>
+              <button class="action-btn trash" @click="remove(item.id)" :title="$t('cart.remove')">🗑️</button>
             </div>
           </div>
 
           <div class="item-price-col">
             <div class="price-wrapper">
-              <span v-if="item.precio_oferta" class="current-price"
-                >{{ item.precio_oferta.toFixed(2).replace('.', ',') }} €</span
-              >
-              <span v-else class="current-price"
-                >{{ item.precio.toFixed(2).replace('.', ',') }} €</span
-              >
+              <span v-if="item.precio_oferta" class="current-price">
+                {{ formatPrice(item.precio_oferta) }} €
+              </span>
+              <span v-else class="current-price">
+                {{ formatPrice(item.precio) }} €
+              </span>
 
-              <span v-if="item.precio_oferta" class="old-price"
-                >{{ item.precio.toFixed(2).replace('.', ',') }} €</span
-              >
+              <span v-if="item.precio_oferta" class="old-price">
+                {{ formatPrice(item.precio) }} €
+              </span>
             </div>
           </div>
         </div>
       </div>
 
       <div v-else class="empty-cart">
-        <p>Tu carrito está vacío.</p>
-        <RouterLink to="/" class="btn-link">Seguir comprando</RouterLink>
+        <p>{{ $t('cart.empty_message') }}</p>
+        <RouterLink to="/" class="btn-link">{{ $t('cart.continue_shopping') }}</RouterLink>
       </div>
     </div>
 
     <div v-if="cartStore.items.length > 0" class="cart-summary-section">
       <div class="summary-card">
-        <h2>Resumen del pedido</h2>
+        <h2>{{ $t('cart.summary.title') }}</h2>
 
         <div class="summary-row">
-          <span>Subtotal</span>
-          <span>{{ cartStore.subtotal.toFixed(2).replace('.', ',') }} €</span>
+          <span>{{ $t('cart.summary.subtotal') }}</span>
+          <span>{{ formatPrice(cartStore.subtotal) }} €</span>
         </div>
 
         <div class="summary-row total-row">
           <div class="total-label">
-            <span>Total</span>
-            <small>IVA incluido</small>
+            <span>{{ $t('cart.summary.total') }}</span>
+            <small>{{ $t('cart.summary.vat_included') }}</small>
           </div>
-          <span class="total-amount">{{ cartStore.total.toFixed(2).replace('.', ',') }} €</span>
+          <span class="total-amount">{{ formatPrice(cartStore.total) }} €</span>
         </div>
 
         <div class="discount-section">
           <details>
-            <summary>¿Tienes un código o un vale descuento?</summary>
+            <summary>{{ $t('cart.summary.discount_code') }}</summary>
             <div class="discount-input-group">
-              <input type="text" placeholder="Código" />
-              <button>Aplicar</button>
+              <input type="text" :placeholder="$t('cart.summary.code_placeholder')" />
+              <button>{{ $t('cart.summary.apply') }}</button>
             </div>
           </details>
         </div>
 
-        <button class="btn-checkout" @click="goToCheckout">Realizar compra</button>
+        <button class="btn-checkout" @click="goToCheckout">{{ $t('cart.summary.checkout') }}</button>
 
         <div class="trust-icons">
           <div class="trust-item">
             <span class="icon">🚚</span>
-            <span>Envío gratis a partir de 49 €</span>
+            <span>{{ $t('cart.trust.shipping') }}</span>
           </div>
           <div class="trust-item">
             <span class="icon">🔒</span>
-            <span>Compra segura 100% garantizada</span>
+            <span>{{ $t('cart.trust.secure') }}</span>
           </div>
           <div class="trust-item">
             <span class="icon">↩️</span>
-            <span>Devoluciones hasta el 15 de Enero de 2026</span>
+            <span>{{ $t('cart.trust.returns') }}</span>
           </div>
         </div>
       </div>

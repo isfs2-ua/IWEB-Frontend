@@ -4,38 +4,36 @@ import { ref, onMounted, onUnmounted } from 'vue'
 // Definimos la estructura de una diapositiva
 interface Slide {
   id: number
-  title: string
-  subtitle?: string // Opcional
-  buttonText: string
+  titleKey: string    // Cambiamos el nombre para que quede claro que es una clave
+  subtitleKey?: string
+  buttonKey: string
   image: string
   link: string
 }
 
-// Datos de las diapositivas (Mock Data)
+// Datos de las diapositivas (Usamos las CLAVES del JSON)
 const slides: Slide[] = [
   {
     id: 1,
-    title: 'Nueva colección de invierno',
-    subtitle: 'Equípate para el frío con estilo y rendimiento.',
-    buttonText: 'Descubrir',
-    // Usamos imágenes de Unsplash para la demo
+    titleKey: 'hero.slide1.title',
+    subtitleKey: 'hero.slide1.subtitle',
+    buttonKey: 'hero.slide1.button',
     image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&q=80',
     link: '#',
   },
   {
     id: 2,
-    title: 'Supera tus límites en Running',
-    subtitle: 'Zapatillas con la última tecnología de amortiguación.',
-    buttonText: 'Ver Zapatillas',
-    image:
-      'https://goodmockups.com/wp-content/uploads/2025/07/Free-Womens-Running-Shoes-Mockup-PSD.jpg',
+    titleKey: 'hero.slide2.title',
+    subtitleKey: 'hero.slide2.subtitle',
+    buttonKey: 'hero.slide2.button',
+    image: 'https://goodmockups.com/wp-content/uploads/2025/07/Free-Womens-Running-Shoes-Mockup-PSD.jpg',
     link: '#',
   },
   {
     id: 3,
-    title: 'Todo para tu entrenamiento',
-    subtitle: 'Ropa técnica y accesorios para el gimnasio.',
-    buttonText: 'Comprar ahora',
+    titleKey: 'hero.slide3.title',
+    subtitleKey: 'hero.slide3.subtitle',
+    buttonKey: 'hero.slide3.button',
     image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80',
     link: '#',
   },
@@ -49,15 +47,15 @@ const nextSlide = () => {
   currentSlideIndex.value = (currentSlideIndex.value + 1) % slides.length
 }
 
-// Función para ir a un slide específico (al hacer clic en los puntitos)
+// Función para ir a un slide específico
 const goToSlide = (index: number) => {
   currentSlideIndex.value = index
-  resetTimer() // Reiniciamos el tiempo para que no cambie inmediatamente
+  resetTimer()
 }
 
 // Control del temporizador automático
 const startAutoPlay = () => {
-  intervalId = setInterval(nextSlide, 5000) // Cambia cada 5 segundos
+  intervalId = setInterval(nextSlide, 5000)
 }
 
 const stopAutoPlay = () => {
@@ -87,14 +85,14 @@ onUnmounted(() => {
       class="slide"
       :class="{ active: index === currentSlideIndex }"
     >
-      <img :src="slide.image" :alt="slide.title" class="slide-image" />
+      <img :src="slide.image" :alt="$t(slide.titleKey)" class="slide-image" />
 
       <div class="overlay"></div>
 
       <div class="content container">
-        <h2 class="title">{{ slide.title }}</h2>
-        <p v-if="slide.subtitle" class="subtitle">{{ slide.subtitle }}</p>
-        <button class="btn-primary">{{ slide.buttonText }}</button>
+        <h2 class="title">{{ $t(slide.titleKey) }}</h2>
+        <p v-if="slide.subtitleKey" class="subtitle">{{ $t(slide.subtitleKey) }}</p>
+        <button class="btn-primary">{{ $t(slide.buttonKey) }}</button>
       </div>
     </div>
 

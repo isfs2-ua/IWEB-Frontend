@@ -17,36 +17,63 @@ const form = computed({
 <template>
   <form class="address-form-grid" @submit.prevent>
     <div class="form-group full-width">
-      <label>Nombre Completo</label>
+      <label>{{ $t('address.full_name') }}</label>
       <input
         type="text"
         v-model="form.nombreCompleto"
-        placeholder="Ej: Pepito Pérez González"
+        :placeholder="$t('address.full_name_placeholder')" 
         required
       />
     </div>
 
     <div class="form-group full-width">
-      <label>Dirección (Calle, número, piso, letra, etc)</label>
-      <input type="text" v-model="form.calle" placeholder="Ej: C/ Mayor 12, 3ºA" required />
+      <label>{{ $t('address.street') }}</label>
+      <input 
+        type="text" 
+        v-model="form.calle" 
+        :placeholder="$t('address.street_placeholder')" 
+        required 
+      />
     </div>
 
     <div class="form-group">
-      <label>Código postal</label>
-      <input type="text" v-model="form.codigoPostal" placeholder="Ej: 03000" required />
+      <label>{{ $t('address.zip_code') }}</label>
+      <input 
+        type="text" 
+        v-model="form.codigoPostal" 
+        :placeholder="$t('address.zip_code_placeholder')" 
+        required 
+      />
     </div>
+    
     <div class="form-group">
-      <label>Ciudad</label>
-      <input type="text" v-model="form.ciudad" placeholder="Ej: Alicante" required />
+      <label>{{ $t('address.city') }}</label>
+      <input 
+        type="text" 
+        v-model="form.ciudad" 
+        :placeholder="$t('address.city_placeholder')" 
+        required 
+      />
     </div>
+    
     <div class="form-group">
-      <label>Provincia</label>
-      <input type="text" v-model="form.provincia" placeholder="Ej: Alicante" required />
+      <label>{{ $t('address.province') }}</label>
+      <input 
+        type="text" 
+        v-model="form.provincia" 
+        :placeholder="$t('address.province_placeholder')" 
+        required 
+      />
     </div>
 
     <div class="form-group full-width">
-      <label>Teléfono</label>
-      <input type="tel" v-model="form.telefono" placeholder="Ej: 600 000 000" required />
+      <label>{{ $t('address.phone') }}</label>
+      <input 
+        type="tel" 
+        v-model="form.telefono" 
+        :placeholder="$t('address.phone_placeholder')" 
+        required 
+      />
     </div>
   </form>
 </template>

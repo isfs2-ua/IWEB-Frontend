@@ -2,44 +2,47 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/products'
+import { useI18n } from 'vue-i18n'
 import ProductCard from '@/components/ProductCard.vue'
 
+const { t } = useI18n()
 const route = useRoute()
 const productStore = useProductStore()
 
-// --- ESTADO DE FILTROS ---
+// ESTADO DE FILTROS
 const selectedBrands = ref<string[]>([])
-const selectedGender = ref<string[]>([]) // Array para permitir selección múltiple o simple
+const selectedGender = ref<string[]>([]) 
 const selectedSizes = ref<string[]>([])
 const selectedColors = ref<string[]>([])
-const priceRange = ref(275) // Valor máximo del slider
+const priceRange = ref(275) 
 
-// --- DATOS ESTÁTICOS PARA LA UI (Copiados del Mockup) ---
+// DATOS ESTÁTICOS
 const brandsList = ['Adidas', 'Nike', 'Reebok', 'New Balance', 'Endura', 'Joma', 'Puma', 'Sportful']
+
 const genderOptions = ['Hombre', 'Mujer', 'Niño', 'Niña']
 const adultSizes = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
 const kidsSizes = ['3-4', '5-6', '7-8', '9-10', '11-12', '13-14']
 const shoeSizes = ['36', '37', '38', '39', '40', '41', '42', '43']
+
 const colorsList = [
-  { name: 'Negro', hex: '#000000' },
-  { name: 'Blanco', hex: '#FFFFFF', border: true },
-  { name: 'Gris', hex: '#808080' },
-  { name: 'Azul', hex: '#0000FF' },
-  { name: 'Rojo', hex: '#FF0000' },
-  { name: 'Verde', hex: '#008000' },
-  { name: 'Amarillo', hex: '#FFFF00' },
-  { name: 'Naranja', hex: '#FFA500' },
-  { name: 'Rosa', hex: '#FFC0CB' },
-  { name: 'Morado', hex: '#800080' },
-  { name: 'Multicolor', hex: 'linear-gradient(45deg, red, yellow, blue)' },
+  { key: 'black', name: 'Negro', hex: '#000000' },
+  { key: 'white', name: 'Blanco', hex: '#FFFFFF', border: true },
+  { key: 'grey', name: 'Gris', hex: '#808080' },
+  { key: 'blue', name: 'Azul', hex: '#0000FF' },
+  { key: 'red', name: 'Rojo', hex: '#FF0000' },
+  { key: 'green', name: 'Verde', hex: '#008000' },
+  { key: 'yellow', name: 'Amarillo', hex: '#FFFF00' },
+  { key: 'orange', name: 'Naranja', hex: '#FFA500' },
+  { key: 'pink', name: 'Rosa', hex: '#FFC0CB' },
+  { key: 'purple', name: 'Morado', hex: '#800080' },
+  { key: 'multicolor', name: 'Multicolor', hex: 'linear-gradient(45deg, red, yellow, blue)' },
 ]
 
 const searchTerm = computed(() => ((route.query.q as string) || '').toLowerCase().trim())
 
-// --- LÓGICA DE FILTRADO ---
 const filteredProducts = computed(() => {
   return productStore.allProducts.filter((product) => {
-    // 1. Texto
+    // Texto
     if (
       searchTerm.value &&
       !product.nombre.toLowerCase().includes(searchTerm.value) &&
@@ -47,14 +50,14 @@ const filteredProducts = computed(() => {
     ) {
       return false
     }
-    // 2. Precio (Menor o igual al slider)
+    // Precio
     if (product.precio > priceRange.value) return false
 
-    // 3. Marcas
+    // Marcas
     if (selectedBrands.value.length > 0 && !selectedBrands.value.includes(product.marca))
       return false
 
-    // 4. Género
+    // Género
     if (
       selectedGender.value.length > 0 &&
       product.genero &&
@@ -62,13 +65,13 @@ const filteredProducts = computed(() => {
     )
       return false
 
-    // 5. Tallas (Si el producto tiene alguna de las tallas seleccionadas)
+    // Tallas
     if (selectedSizes.value.length > 0 && product.tallas) {
       const hasSize = product.tallas.some((t) => selectedSizes.value.includes(t))
       if (!hasSize) return false
     }
 
-    // 6. Colores
+    // Colores
     if (selectedColors.value.length > 0 && product.colores) {
       const hasColor = product.colores.some((c) => selectedColors.value.includes(c))
       if (!hasColor) return false
@@ -90,8 +93,9 @@ const toggleSelection = (array: string[], value: string) => {
   <div class="search-page container">
     <div class="main-layout">
       <aside class="filters-sidebar">
+        
         <div class="filter-group">
-          <h3>Precio</h3>
+          <h3>{{ $t('search_page.filters.price') }}</h3>
           <div class="slider-container">
             <input type="range" v-model="priceRange" min="0" max="300" class="range-slider" />
             <div class="price-labels">
@@ -102,7 +106,7 @@ const toggleSelection = (array: string[], value: string) => {
         </div>
 
         <div class="filter-group">
-          <h3>Marca</h3>
+          <h3>{{ $t('search_page.filters.brand') }}</h3>
           <div class="checkbox-list">
             <label v-for="brand in brandsList" :key="brand" class="checkbox-item">
               <input type="checkbox" :value="brand" v-model="selectedBrands" />
@@ -112,7 +116,7 @@ const toggleSelection = (array: string[], value: string) => {
         </div>
 
         <div class="filter-group">
-          <h3>Género</h3>
+          <h3>{{ $t('search_page.filters.gender') }}</h3>
           <div class="grid-buttons two-cols">
             <button
               v-for="gen in genderOptions"
@@ -121,15 +125,15 @@ const toggleSelection = (array: string[], value: string) => {
               :class="{ active: selectedGender.includes(gen) }"
               @click="toggleSelection(selectedGender, gen)"
             >
-              {{ gen }}
+              {{ $t('search_page.filters.gender_values.' + gen) }}
             </button>
           </div>
         </div>
 
         <div class="filter-group">
-          <h3>Talla</h3>
+          <h3>{{ $t('search_page.filters.size') }}</h3>
 
-          <label class="sub-label">Adultos</label>
+          <label class="sub-label">{{ $t('search_page.filters.size_adults') }}</label>
           <div class="grid-buttons sizes-grid">
             <button
               v-for="size in adultSizes"
@@ -142,7 +146,7 @@ const toggleSelection = (array: string[], value: string) => {
             </button>
           </div>
 
-          <label class="sub-label">Niños</label>
+          <label class="sub-label">{{ $t('search_page.filters.size_kids') }}</label>
           <div class="grid-buttons sizes-grid">
             <button
               v-for="size in kidsSizes"
@@ -157,7 +161,7 @@ const toggleSelection = (array: string[], value: string) => {
         </div>
 
         <div class="filter-group">
-          <h3>Talla de pie</h3>
+          <h3>{{ $t('search_page.filters.foot_size') }}</h3>
           <div class="grid-buttons sizes-grid">
             <button
               v-for="size in shoeSizes"
@@ -172,7 +176,7 @@ const toggleSelection = (array: string[], value: string) => {
         </div>
 
         <div class="filter-group">
-          <h3>Color</h3>
+          <h3>{{ $t('search_page.filters.color') }}</h3>
           <div class="color-grid">
             <div
               v-for="color in colorsList"
@@ -186,31 +190,31 @@ const toggleSelection = (array: string[], value: string) => {
               >
                 <span v-if="selectedColors.includes(color.name)" class="check-mark">✓</span>
               </div>
-              <span class="color-name">{{ color.name }}</span>
+              <span class="color-name">{{ $t('colors.' + color.key) }}</span>
             </div>
           </div>
         </div>
 
         <div class="filter-group">
-          <h3>Tiendas</h3>
+          <h3>{{ $t('search_page.filters.stores') }}</h3>
           <div class="checkbox-list">
-            <label class="checkbox-item"><input type="checkbox" /> Madrid centro</label>
-            <label class="checkbox-item"><input type="checkbox" /> Barcelona diagonal</label>
-            <label class="checkbox-item"><input type="checkbox" /> Valencia puerto</label>
+            <label class="checkbox-item"><input type="checkbox" /> {{ $t('search_page.filters.stores_list.madrid') }}</label>
+            <label class="checkbox-item"><input type="checkbox" /> {{ $t('search_page.filters.stores_list.barcelona') }}</label>
+            <label class="checkbox-item"><input type="checkbox" /> {{ $t('search_page.filters.stores_list.valencia') }}</label>
           </div>
         </div>
       </aside>
 
       <section class="results-content">
-        <h2 class="results-title"></h2>
+        <h2 class="results-title">{{ $t('search_page.results.title') }}</h2>
 
         <div v-if="filteredProducts.length > 0" class="products-grid">
           <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product" />
         </div>
 
         <div v-else class="no-results">
-          <h3>Sin resultados</h3>
-          <p>Intenta cambiar los filtros.</p>
+          <h3>{{ $t('search_page.results.no_results') }}</h3>
+          <p>{{ $t('search_page.results.try_filters') }}</p>
         </div>
       </section>
     </div>
@@ -219,7 +223,7 @@ const toggleSelection = (array: string[], value: string) => {
 
 <style scoped>
 .container {
-  max-width: 1400px; /* Un poco más ancho para que quepa bien la sidebar */
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px;
 }

@@ -17,7 +17,12 @@ const store = useNotificationStore()
         {{ store.message }}
       </div>
 
-      <button @click="store.hideNotification" class="close-btn">×</button>
+      <button 
+        @click="store.hideNotification" 
+        class="close-btn"
+        :title="$t('toast.close')"
+        :aria-label="$t('toast.close')"
+      >×</button>
     </div>
   </Transition>
 </template>
@@ -40,19 +45,18 @@ const store = useNotificationStore()
   gap: 12px;
 }
 
-/* Variantes de color */
 .success {
-  background-color: #2ecc71; /* Verde bonito */
+  background-color: #2ecc71;
   border-left: 5px solid #27ae60;
 }
 
 .error {
-  background-color: #e74c3c; /* Rojo bonito */
+  background-color: #e74c3c;
   border-left: 5px solid #c0392b;
 }
 
 .info {
-  background-color: var(--color-primary); /* Naranja de tu marca */
+  background-color: var(--color-primary);
   border-left: 5px solid #e65100;
 }
 

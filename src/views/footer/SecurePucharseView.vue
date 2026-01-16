@@ -1,31 +1,27 @@
 <template>
   <div class="legal-container">
     <div class="legal-content">
-      <h1 class="text-orange">Compra Segura</h1>
-      <p class="intro">Tu seguridad es nuestra prioridad. Hemos implementado los estándares más altos de protección para que compres con total tranquilidad.</p>
+      <h1 class="text-orange">{{ $t('secure_purchase.title') }}</h1>
+      <p class="intro">
+        {{ $t('secure_purchase.intro') }}
+      </p>
 
       <section>
-        <h2>🔒 Seguridad SSL</h2>
-        <p>
-          Toda la navegación en nuestra web está protegida mediante protocolo <strong>HTTPS</strong> con cifrado SSL de 256 bits. 
-          Esto garantiza que tus datos viajan encriptados y son inaccesibles para terceros.
-        </p>
+        <h2>{{ $t('secure_purchase.ssl.title') }}</h2>
+        <p v-html="$t('secure_purchase.ssl.text')"></p>
       </section>
 
       <section>
-        <h2>💳 Métodos de Pago</h2>
-        <p>Aceptamos el método de pago a través de una pasarela de pago:</p>
+        <h2>{{ $t('secure_purchase.methods.title') }}</h2>
+        <p>{{ $t('secure_purchase.methods.text') }}</p>
         <ul class="payment-list">
-          <li><strong>Tarjeta de Crédito/Débito:</strong> Procesado a través de pasarela segura bancaria.</li>
+          <li v-html="$t('secure_purchase.methods.list.card')"></li>
         </ul>
       </section>
 
       <section>
-        <h2>🛡️ Protección de Datos</h2>
-        <p>
-          Cumplimos rigurosamente con el RGPD. Tus datos bancarios <strong>nunca se almacenan</strong> en nuestros servidores; 
-          se envían directamente a la entidad financiera a través de canales seguros.
-        </p>
+        <h2>{{ $t('secure_purchase.protection.title') }}</h2>
+        <p v-html="$t('secure_purchase.protection.text')"></p>
       </section>
     </div>
   </div>

@@ -1,61 +1,56 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ProfileSidebar from '@/components/ProfileSidebar.vue'
 import { useOrderStore } from '@/stores/orders'
 import { useNotificationStore } from '@/stores/notification'
 
+const { t, tm, locale } = useI18n()
 const orderStore = useOrderStore()
 const notificationStore = useNotificationStore()
 
-// --- FILTROS ---
+// FILTROS
 const selectedYear = ref('2026')
-const selectedMonth = ref('Enero')
+const selectedMonthIndex = ref<number | ''>('') // Guardamos el índice (0-11) o vacío
 const searchQuery = ref('')
 
 const years = ['2026', '2025', '2024']
-const months = [
-  'Enero',
-  'Febrero',
-  'Marzo',
-  'Abril',
-  'Mayo',
-  'Junio',
-  'Julio',
-  'Agosto',
-  'Septiembre',
-  'Octubre',
-  'Noviembre',
-  'Diciembre',
-]
 
-// Función para obtener el nombre del mes desde una fecha 'YYYY-MM-DD'
-const getMonthName = (dateString: string) => {
+// Computamos los meses para que se traduzcan al cambiar el idioma
+const months = computed(() => tm('date.months') as string[])
+
+const getMonthIndex = (dateString: string) => {
   const date = new Date(dateString)
-  return months[date.getMonth()]
+  return date.getMonth()
 }
 
 const getYear = (dateString: string) => {
   return dateString.split('-')[0]
 }
 
-// Formatear fecha para mostrarla como "10/1/2026"
+// Formatear fecha según el idioma actual (ES: 10/1/2026, EN: 1/10/2026)
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
-  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
+  return date.toLocaleDateString(locale.value)
 }
 
-// --- LÓGICA DE FILTRADO ---
+// Formatear precio según idioma (ES: 25,00 €, EN: 25.00 €)
+const formatPrice = (price: number) => {
+  return price.toLocaleString(locale.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+// LÓGICA DE FILTRADO
 const filteredOrders = computed(() => {
   return orderStore.orders.filter((order) => {
-    // 1. Filtro por Año
+    // Filtro por Año
     if (selectedYear.value && getYear(order.fecha) !== selectedYear.value) {
       return false
     }
-    // 2. Filtro por Mes
-    if (selectedMonth.value && getMonthName(order.fecha) !== selectedMonth.value) {
+    // Filtro por Mes
+    if (selectedMonthIndex.value !== '' && getMonthIndex(order.fecha) !== selectedMonthIndex.value) {
       return false
     }
-    // 3. Filtro por Búsqueda (Nº Pedido o Nombre producto)
+    // Filtro por Búsqueda
     if (searchQuery.value) {
       const query = searchQuery.value.toLowerCase()
       const matchId = order.numero_pedido.includes(query)
@@ -66,14 +61,15 @@ const filteredOrders = computed(() => {
   })
 })
 
-// --- ACCIONES ---
+// ACCIONES
 const downloadInvoice = (orderId: string) => {
-  notificationStore.showNotification(`Descargando factura del pedido ${orderId}...`, 'info')
+  // Traducción con parámetro {id}
+  notificationStore.showNotification(t('profile.orders.notifications.download', { id: orderId }), 'info')
 }
 
 const addReview = (productName: string) => {
-  notificationStore.showNotification(`Añadir reseña para: ${productName}`, 'success')
-  // Aquí redirigirías a un formulario de reseña
+  // Traducción con parámetro {product}
+  notificationStore.showNotification(t('profile.orders.notifications.review', { product: productName }), 'success')
 }
 </script>
 
@@ -82,20 +78,26 @@ const addReview = (productName: string) => {
     <ProfileSidebar />
 
     <div class="profile-content">
-      <h1 class="page-title">Pedidos, devoluciones y facturas</h1>
+      <h1 class="page-title">{{ $t('profile.orders.title') }}</h1>
 
       <div class="filters-bar">
         <select v-model="selectedYear" class="filter-select">
           <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
         </select>
 
-        <select v-model="selectedMonth" class="filter-select">
-          <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
+        <select v-model="selectedMonthIndex" class="filter-select">
+          <option value="">{{ $t('common.all') || 'Todos' }}</option> <option v-for="(month, index) in months" :key="index" :value="index">
+            {{ month }}
+          </option>
         </select>
 
         <div class="search-wrapper">
           <span class="search-icon">🔍</span>
-          <input type="text" v-model="searchQuery" placeholder="Buscar" />
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            :placeholder="$t('profile.orders.search_placeholder')" 
+          />
         </div>
       </div>
 
@@ -104,21 +106,21 @@ const addReview = (productName: string) => {
           <div class="order-header">
             <div class="header-info">
               <div class="info-col">
-                <span class="label">Realizado</span>
+                <span class="label">{{ $t('profile.orders.placed_on') }}</span>
                 <span class="value">{{ formatDate(order.fecha) }}</span>
               </div>
               <div class="info-col">
-                <span class="label">Nº pedido</span>
+                <span class="label">{{ $t('profile.orders.order_number') }}</span>
                 <span class="value">{{ order.numero_pedido }}</span>
               </div>
             </div>
 
             <div class="header-actions">
               <button class="btn-invoice" @click="downloadInvoice(order.numero_pedido)">
-                Factura
+                {{ $t('profile.orders.invoice') }}
               </button>
               <button class="btn-review" @click="addReview(order.items[0].nombre)">
-                Añadir reseña
+                {{ $t('profile.orders.add_review') }}
               </button>
             </div>
           </div>
@@ -130,15 +132,15 @@ const addReview = (productName: string) => {
               </div>
               <div class="item-details">
                 <h4 class="item-name">{{ item.nombre }}</h4>
-                <span class="item-price">{{ item.precio.toFixed(2).replace('.', ',') }} €</span>
-                <span class="item-qty">x{{ item.cantidad }} Unidad/es</span>
+                <span class="item-price">{{ formatPrice(item.precio) }} €</span>
+                <span class="item-qty">x{{ item.cantidad }} {{ $t('profile.orders.units') }}</span>
               </div>
             </div>
           </div>
         </div>
 
         <div v-if="filteredOrders.length === 0" class="no-orders">
-          <p>No se han encontrado pedidos con estos filtros.</p>
+          <p>{{ $t('profile.orders.no_results') }}</p>
         </div>
       </div>
     </div>

@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import ProfileSidebar from '@/components/ProfileSidebar.vue'
 
 const authStore = useAuthStore()
-const user = authStore.user // Acceso directo al usuario (asumimos que está logueado)
+const user = authStore.user 
 
-// Datos estáticos para los selects del formulario
-const sportsList = ['Running', 'Ciclismo', 'Fútbol', 'Baloncesto', 'Tenis', 'Natación', 'Otro']
+const sportsList = ['running', 'cycling', 'football', 'basketball', 'tennis', 'swimming', 'other']
 </script>
 
 <template>
@@ -15,33 +13,33 @@ const sportsList = ['Running', 'Ciclismo', 'Fútbol', 'Baloncesto', 'Tenis', 'Na
     <ProfileSidebar />
 
     <div class="profile-content">
-      <h1 class="page-title">Mis Datos</h1>
+      <h1 class="page-title">{{ $t('profile.data.title') }}</h1>
 
       <section class="info-section">
         <div class="section-header">
-          <h3>Datos de cuenta</h3>
+          <h3>{{ $t('profile.data.account_section') }}</h3>
         </div>
 
         <div class="data-row">
           <div class="data-col">
-            <label>Nombre de usuario</label>
+            <label>{{ $t('profile.data.username') }}</label>
             <p>{{ user?.username }}</p>
           </div>
           <div class="action-col">
-            <button class="btn-edit">Editar</button>
+            <button class="btn-edit">{{ $t('common.edit') }}</button>
           </div>
         </div>
 
         <div class="data-row">
           <div class="data-col">
-            <label>Email</label>
+            <label>{{ $t('profile.data.email') }}</label>
             <p>{{ user?.email }}</p>
           </div>
         </div>
 
         <div class="data-row">
           <div class="data-col">
-            <label>Contraseña</label>
+            <label>{{ $t('profile.data.password') }}</label>
             <p>********</p>
           </div>
         </div>
@@ -51,32 +49,32 @@ const sportsList = ['Running', 'Ciclismo', 'Fútbol', 'Baloncesto', 'Tenis', 'Na
 
       <section class="info-section">
         <div class="section-header">
-          <h3>Datos personales</h3>
+          <h3>{{ $t('profile.data.personal_section') }}</h3>
         </div>
 
         <div class="data-grid">
           <div class="data-item">
-            <label>Nombre</label>
+            <label>{{ $t('profile.data.name') }}</label>
             <p>{{ user?.nombre }}</p>
           </div>
 
           <div class="data-row-flex">
             <div class="data-item">
-              <label>Apellidos</label>
+              <label>{{ $t('profile.data.surname') }}</label>
               <p>{{ user?.apellidos }}</p>
             </div>
             <div class="action-col">
-              <button class="btn-edit">Editar</button>
+              <button class="btn-edit">{{ $t('common.edit') }}</button>
             </div>
           </div>
 
           <div class="data-item">
-            <label>Teléfono</label>
+            <label>{{ $t('profile.data.phone') }}</label>
             <p>{{ user?.telefono }}</p>
           </div>
 
           <div class="data-item">
-            <label>Fecha de nacimiento</label>
+            <label>{{ $t('profile.data.birthdate') }}</label>
             <p>{{ user?.fechaNacimiento }}</p>
           </div>
         </div>
@@ -86,28 +84,28 @@ const sportsList = ['Running', 'Ciclismo', 'Fútbol', 'Baloncesto', 'Tenis', 'Na
 
       <section class="info-section">
         <div class="section-header flex-end">
-          <h3>Formulario</h3>
+          <h3>{{ $t('profile.data.form_section') }}</h3>
           <div class="header-actions">
-            <button class="btn-edit">Añadir nuevo</button>
-            <button class="btn-edit">Editar</button>
+            <button class="btn-edit">{{ $t('profile.data.add_new') }}</button>
+            <button class="btn-edit">{{ $t('common.edit') }}</button>
           </div>
         </div>
 
         <div v-for="form in user?.formularios" :key="form.id" class="preference-card">
-          <h4>Personaliza tu experiencia:</h4>
+          <h4>{{ $t('profile.data.customize') }}</h4>
 
           <div class="card-grid">
             <div class="left-col">
               <div class="form-group">
-                <label>Género</label>
+                <label>{{ $t('profile.data.gender') }}</label>
                 <select v-model="form.genero" class="input-field">
-                  <option>Hombre</option>
-                  <option>Mujer</option>
+                  <option value="Hombre">{{ $t('profile.data.gender_options.male') }}</option>
+                  <option value="Mujer">{{ $t('profile.data.gender_options.female') }}</option>
                 </select>
               </div>
 
               <div class="form-group">
-                <label>Talla</label>
+                <label>{{ $t('profile.data.size') }}</label>
                 <select v-model="form.talla" class="input-field">
                   <option>L</option>
                   <option>M</option>
@@ -116,17 +114,19 @@ const sportsList = ['Running', 'Ciclismo', 'Fútbol', 'Baloncesto', 'Tenis', 'Na
               </div>
 
               <div class="form-group">
-                <label>Talla de pie</label>
+                <label>{{ $t('profile.data.foot_size') }}</label>
                 <input type="text" v-model="form.tallaPie" class="input-field" />
               </div>
             </div>
 
             <div class="right-col">
-              <label class="checkbox-label">Interés por el deporte:</label>
+              <label class="checkbox-label">{{ $t('profile.data.interests') }}</label>
               <div class="checkbox-list">
-                <label v-for="sport in sportsList" :key="sport" class="checkbox-item">
-                  <input type="checkbox" :value="sport" v-model="form.intereses" />
-                  <span>{{ sport }}</span>
+                <label v-for="sportKey in sportsList" :key="sportKey" class="checkbox-item">
+                  <input type="checkbox" :value="sportKey" v-model="form.intereses" />
+                  <span>
+                    {{ sportKey === 'other' ? $t('common.other') : $t('sports_list.' + sportKey) }}
+                  </span>
                 </label>
               </div>
             </div>
@@ -137,7 +137,7 @@ const sportsList = ['Running', 'Ciclismo', 'Fútbol', 'Baloncesto', 'Tenis', 'Na
       </section>
 
       <section class="delete-account">
-        <button class="btn-text-danger">Dar de baja mi cuenta</button>
+        <button class="btn-text-danger">{{ $t('profile.data.delete_account') }}</button>
       </section>
     </div>
   </div>

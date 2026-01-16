@@ -1,32 +1,40 @@
 <template>
   <div class="legal-container">
     <div class="legal-content">
-      <h1 class="text-orange">Aviso Legal</h1>
-      <p class="intro">En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y del Comercio Electrónico (LSSICE), se exponen a continuación los datos identificativos de la entidad:</p>
+      <h1 class="text-orange">{{ $t('legal.title') }}</h1>
+      <p class="intro">
+        {{ $t('legal.intro') }}
+      </p>
 
       <section>
-        <h2>1. Datos Identificativos</h2>
+        <h2>{{ $t('legal.data.title') }}</h2>
         <ul class="data-list">
-          <li><strong>Denominación Social:</strong> Tienda Deportiva (Proyecto Académico)</li>
-          <li><strong>Domicilio Social:</strong> Carretera de San Vicente del Raspeig s/n, 03690 San Vicente del Raspeig, Alicante (Universidad de Alicante)</li>
-          <li><strong>Email de contacto:</strong> tiendadeportiva@ua.es</li>
-          <li><strong>Actividad:</strong> Práctica docente de la asignatura Ingeniería Web.</li>
+          <li v-html="$t('legal.data.items.social_name')"></li>
+          <li v-html="$t('legal.data.items.address')"></li>
+          <li v-html="$t('legal.data.items.email')"></li>
+          <li v-html="$t('legal.data.items.activity')"></li>
         </ul>
       </section>
 
       <section>
-        <h2>2. Objeto del sitio web</h2>
-        <p>El presente sitio web ha sido creado con fines meramente educativos para la demostración de competencias en desarrollo web Full Stack (Vue.js + Spring Boot). Ningún producto ofertado es real ni se realizará ningún cobro efectivo.</p>
+        <h2>{{ $t('legal.object.title') }}</h2>
+        <p>
+          {{ $t('legal.object.text') }}
+        </p>
       </section>
 
       <section>
-        <h2>3. Propiedad Intelectual</h2>
-        <p>El código fuente, los diseños gráficos, las imágenes, las fotografías, los sonidos, las animaciones, el software, los textos, así como la información y los contenidos que se recogen en este sitio web están protegidos por la legislación española sobre los derechos de propiedad intelectual e industrial a favor de los autores del proyecto.</p>
+        <h2>{{ $t('legal.intellectual_property.title') }}</h2>
+        <p>
+          {{ $t('legal.intellectual_property.text') }}
+        </p>
       </section>
 
       <section>
-        <h2>4. Exclusión de garantías y responsabilidad</h2>
-        <p>Los autores no se hacen responsables, en ningún caso, de los daños y perjuicios de cualquier naturaleza que pudieran ocasionar, a título enunciativo: errores u omisiones en los contenidos, falta de disponibilidad del portal o la transmisión de virus o programas maliciosos, a pesar de haber adoptado todas las medidas tecnológicas necesarias para evitarlo.</p>
+        <h2>{{ $t('legal.responsibility.title') }}</h2>
+        <p>
+          {{ $t('legal.responsibility.text') }}
+        </p>
       </section>
     </div>
   </div>
