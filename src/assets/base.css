@@ -1,0 +1,30 @@
+:root {
+  --color-primary: #ff6b35; /* El naranja del mockup */
+  --color-text-main: #2c3e50;
+  --color-text-light: #6c757d;
+  --color-bg-light: #f8f9fa;
+  --border-radius: 8px;
+}
+
+body {
+  font-family: 'Inter', sans-serif; /* O la fuente que prefieras */
+  color: var(--color-text-main);
+  margin: 0;
+}
+
+/* Utilidad para botones primarios */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 50px; /* Bordes muy redondos como en el mockup */
+  text-decoration: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #e55a2b;
+}

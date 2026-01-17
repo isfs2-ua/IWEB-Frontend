@@ -1,0 +1,604 @@
+{
+  "header": {
+    "profile": "Ir a mi perfil",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "favorites": "Favoritos",
+    "cart": "Carrito",
+    "logout_success": "Has cerrado sesión correctamente.",
+    "modal": {
+      "title": "Cerrar sesión",
+      "message": "¿Estás seguro de que quieres salir de tu cuenta?"
+    }
+  },
+  "nav": {
+    "running": "Running",
+    "cycling": "Ciclismo",
+    "football": "Fútbol",
+    "basketball": "Baloncesto",
+    "tennis": "Tenis",
+    "swimming": "Natación",
+    "more_sports": "Más deportes",
+    "nutrition": "Nutrición y recuperación"
+  },
+  "footer": {
+    "about": "Sobre Nosotros",
+    "who_we_are": "Quiénes somos",
+    "stores": "Nuestras Tiendas",
+    "guarantees": "Garantías",
+    "secure_purchase": "Compra segura",
+    "returns": "Envíos y devoluciones",
+    "customer_support": "Atención al Cliente",
+    "help": "Ayuda",
+    "invoices": "Facturas",
+    "legal": "Aviso Legal",
+    "privacy": "Política de Privacidad",
+    "cookies": "Política de Cookies",
+    "rights": "Todos los derechos reservados.",
+    "language": "Idiomas"
+  },
+  "common": {
+    "edit": "Editar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "other": "Otro",
+    "all": "Todos",
+    "child_male": "Niño",
+    "child_female": "Niña"
+  },
+  "address": {
+    "full_name": "Nombre Completo",
+    "full_name_placeholder": "Ej: Pepito Pérez González",
+    "street": "Dirección (Calle, número, piso, letra...)",
+    "street_placeholder": "Ej: C/ Mayor 12, 3ºA",
+    "zip_code": "Código postal",
+    "zip_code_placeholder": "Ej: 03000",
+    "city": "Ciudad",
+    "city_placeholder": "Ej: Alicante",
+    "province": "Provincia",
+    "province_placeholder": "Ej: Alicante",
+    "phone": "Teléfono",
+    "phone_placeholder": "Ej: 600 000 000"
+  },
+  "product": {
+    "select_size": "Selecciona Talla",
+    "error_size": "Por favor, selecciona una talla.",
+    "added_cart": "¡Producto añadido al carrito!",
+    "add_to_wishlist": "Añadir a favoritos"
+  },
+  "favorites": {
+    "removed": "Eliminado de favoritos"
+  },
+  "hero": {
+    "slide1": {
+      "title": "Nueva colección de invierno",
+      "subtitle": "Equípate para el frío con estilo y rendimiento.",
+      "button": "Descubrir"
+    },
+    "slide2": {
+      "title": "Supera tus límites en Running",
+      "subtitle": "Zapatillas con la última tecnología de amortiguación.",
+      "button": "Ver Zapatillas"
+    },
+    "slide3": {
+      "title": "Todo para tu entrenamiento",
+      "subtitle": "Ropa técnica y accesorios para el gimnasio.",
+      "button": "Comprar ahora"
+    }
+  },
+  "profile": {
+    "menu": {
+      "my_data": "Mis Datos",
+      "my_orders": "Mis pedidos",
+      "favorites": "Favoritos",
+      "logout": "Cerrar sesión"
+    },
+    "data": {
+      "title": "My Profile",
+      "account_section": "Account Details",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "personal_section": "Personal Details",
+      "name": "First Name",
+      "surname": "Last Name",
+      "phone": "Phone",
+      "birthdate": "Date of Birth",
+      "form_section": "Form",
+      "add_new": "Add New",
+      "customize": "Customize your experience:",
+      "gender": "Gender",
+      "gender_options": {
+        "male": "Male",
+        "female": "Female"
+      },
+      "size": "Size",
+      "foot_size": "Shoe Size",
+      "interests": "Sports Interests:",
+      "delete_account": "Delete my account"
+    },
+    "favorites_page": {
+      "title": "Favoritos",
+      "empty": "No tienes artículos en tu lista de deseos.",
+      "explore": "Explorar productos"
+    },
+    "orders": {
+      "title": "Pedidos, devoluciones y facturas",
+      "search_placeholder": "Buscar (Nº pedido o producto)",
+      "placed_on": "Realizado el",
+      "order_number": "Nº pedido",
+      "invoice": "Factura",
+      "add_review": "Añadir reseña",
+      "units": "Unidad/es",
+      "no_results": "No se han encontrado pedidos con estos filtros.",
+      "notifications": {
+        "download": "Descargando factura del pedido {id}...",
+        "review": "Añadir reseña para: {product}"
+      }
+    }
+  },
+  "date": {
+    "months": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+  },
+  "search": {
+    "placeholder": "¿Qué buscas?"
+  },
+  "toast": {
+    "close": "Cerrar notificación"
+  },
+  "about": {
+    "title": "Quiénes Somos",
+    "intro": "Bienvenido a Tienda Deportiva, tu referencia en equipamiento deportivo. Nacimos en las aulas de la Universidad de Alicante con una misión clara: demostrar que la tecnología y el deporte forman el equipo perfecto.",
+    "history": {
+      "title": "🏆 Nuestra Historia",
+      "text": "Este proyecto comenzó como un desafío académico en la asignatura de <strong>Ingeniería Web</strong>. Lo que empezó con unas pocas líneas de código en Java y Vue.js se ha convertido en una plataforma de comercio electrónico completa, diseñada para ofrecer una experiencia de usuario fluida y moderna."
+    },
+    "mission": {
+      "title": "🚀 Misión y Valores",
+      "innovation": {
+        "title": "Innovación",
+        "text": "Utilizamos las últimas tecnologías (Spring Boot 3, Vue 3, Pinia) para construir software robusto."
+      },
+      "learning": {
+        "title": "Aprendizaje",
+        "text": "Cada bug es una lección; cada funcionalidad, un logro. Crecemos con cada commit."
+      },
+      "teamwork": {
+        "title": "Trabajo en Equipo",
+        "text": "Backend y Frontend unidos por una API REST. La colaboración es nuestra clave."
+      }
+    },
+    "team": {
+      "title": "👨‍💻 El Equipo",
+      "text": "Somos estudiantes apasionados por el desarrollo de software. Nos encargamos de todo el stack tecnológico, desde la base de datos hasta la interfaz que estás viendo ahora mismo."
+    }
+  },
+  "cookies": {
+    "title": "Política de Cookies",
+    "intro": "En Tienda Deportiva utilizamos cookies propias y de terceros para mejorar la experiencia de navegación, gestionar el contenido de tu carrito y permitir el acceso a áreas privadas.",
+    "what_is": {
+      "title": "1. ¿Qué es una cookie?",
+      "text": "Una cookie es un pequeño fichero de texto que se almacena en tu navegador cuando visitas casi cualquier página web. Su utilidad es que la web sea capaz de recordar tu visita cuando vuelvas a navegar por esa página."
+    },
+    "used_cookies": {
+      "title": "2. Cookies que utiliza esta web",
+      "intro": "Siguiendo las directrices de la Agencia Española de Protección de Datos, detallamos el uso de cookies que hace esta web:",
+      "technical": {
+        "title": "🍪 Cookies Técnicas (Necesarias)",
+        "text": "Son aquellas esenciales para el funcionamiento de la web. En nuestro caso, las utilizamos para:",
+        "list": {
+          "session": "Mantener tu sesión abierta (Login).",
+          "cart": "Recordar los productos que has añadido al carrito.",
+          "security": "Gestionar la seguridad durante la navegación."
+        }
+      },
+      "analysis": {
+        "title": "📊 Cookies de Análisis",
+        "text": "Al tratarse de un proyecto académico, no utilizamos herramientas de rastreo real como Google Analytics, aunque en un entorno de producción real se usarían para cuantificar el número de usuarios y realizar la medición y análisis estadístico."
+      }
+    },
+    "deactivation": {
+      "title": "3. Desactivación o eliminación",
+      "text": "En cualquier momento puedes ejercer tu derecho de desactivación o eliminación de cookies de este sitio web. Estas acciones se realizan de forma diferente en función del navegador que estés usando (Chrome, Firefox, Safari, etc.)."
+    },
+    "notes": {
+      "title": "4. Notas adicionales",
+      "text": "Este sitio web es un <strong>proyecto académico</strong>. No se recogen datos de navegación con fines comerciales ni publicitarios."
+    }
+  },
+  "help": {
+    "title": "Ayuda y Preguntas Frecuentes",
+    "intro": "¿Tienes dudas? Aquí resolvemos las consultas más habituales de nuestros clientes.",
+    "faq": {
+      "shipping": {
+        "question": "📦 ¿Cuánto tardará en llegar mi pedido?",
+        "answer": "Los envíos peninsulares suelen tardar entre 24 y 48 horas laborables. Para las islas, el plazo es de 3-5 días."
+      },
+      "returns": {
+        "question": "🔄 ¿Cómo puedo devolver un producto?",
+        "answer": "Tienes 30 días para devoluciones. Entra en tu perfil, ve a \"Mis Pedidos\" y selecciona la opción \"Solicitar Devolución\". Te enviaremos una etiqueta prepagada."
+      },
+      "password": {
+        "question": "🔑 He olvidado mi contraseña, ¿qué hago?",
+        "answer": "En la pantalla de Login, pulsa sobre \"¿Olvidaste tu contraseña?\". Recibirás un email para restablecerla de forma segura."
+      },
+      "invoice": {
+        "question": "🧾 ¿Recibiré factura de mi compra?",
+        "answer": "Sí, recibirás un email con la factura simplificada automáticamente. También puedes descargarla desde tu área de cliente."
+      }
+    },
+    "contact": {
+      "title": "¿Necesitas más ayuda?",
+      "text": "Nuestro equipo de soporte está disponible para ti."
+    }
+  },
+  "invoices": {
+    "title": "Facturación",
+    "download": {
+      "title": "📥 Descarga de Facturas",
+      "text": "Puedes acceder a todas tus facturas desde tu <strong>Área de Cliente</strong>. Una vez dentro, dirígete a la sección 'Mis Pedidos', donde encontrarás el icono de descarga PDF junto a cada compra finalizada."
+    },
+    "business": {
+      "title": "🏢 Facturas para Empresas",
+      "text1": "Si necesitas una factura completa a nombre de tu empresa o autónomo, asegúrate de rellenar los datos fiscales (CIF/NIF, Razón Social y Dirección Fiscal) en tu perfil antes de realizar el pedido.",
+      "text2": "Si olvidaste hacerlo, puedes solicitar la modificación contactando con soporte en los 7 días posteriores a la compra."
+    },
+    "taxes": {
+      "title": "📊 Impuestos (IVA)",
+      "text": "Todos los precios mostrados en nuestra web <strong>incluyen el IVA</strong> vigente en España (21% tipo general). En el resumen del pedido y en la factura final verás el desglose detallado de la base imponible y la cuota tributaria."
+    }
+  },
+  "legal": {
+    "title": "Aviso Legal",
+    "intro": "En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y del Comercio Electrónico (LSSICE), se exponen a continuación los datos identificativos de la entidad:",
+    "data": {
+      "title": "1. Datos Identificativos",
+      "items": {
+        "social_name": "<strong>Denominación Social:</strong> Tienda Deportiva (Proyecto Académico)",
+        "address": "<strong>Domicilio Social:</strong> Carretera de San Vicente del Raspeig s/n, 03690 San Vicente del Raspeig, Alicante (Universidad de Alicante)",
+        "email": "<strong>Email de contacto:</strong> tiendadeportiva@ua.es",
+        "activity": "<strong>Actividad:</strong> Práctica docente de la asignatura Ingeniería Web."
+      }
+    },
+    "object": {
+      "title": "2. Objeto del sitio web",
+      "text": "El presente sitio web ha sido creado con fines meramente educativos para la demostración de competencias en desarrollo web Full Stack (Vue.js + Spring Boot). Ningún producto ofertado es real ni se realizará ningún cobro efectivo."
+    },
+    "intellectual_property": {
+      "title": "3. Propiedad Intelectual",
+      "text": "El código fuente, los diseños gráficos, las imágenes, las fotografías, los sonidos, las animaciones, el software, los textos, así como la información y los contenidos que se recogen en este sitio web están protegidos por la legislación española sobre los derechos de propiedad intelectual e industrial a favor de los autores del proyecto."
+    },
+    "responsibility": {
+      "title": "4. Exclusión de garantías y responsabilidad",
+      "text": "Los autores no se hacen responsables, en ningún caso, de los daños y perjuicios de cualquier naturaleza que pudieran ocasionar, a título enunciativo: errores u omisiones en los contenidos, falta de disponibilidad del portal o la transmisión de virus o programas maliciosos, a pesar de haber adoptado todas las medidas tecnológicas necesarias para evitarlo."
+    }
+  },
+  "privacy": {
+    "title": "Política de Privacidad",
+    "intro": "En Tienda Deportiva estamos comprometidos con la protección de la privacidad y la seguridad de tus datos personales. Esta política describe cómo recopilamos, usamos y protegemos tu información.",
+    "controller": {
+      "title": "1. Responsable del Tratamiento",
+      "text": "Los datos de carácter personal que se pudieran recabar directamente del interesado serán tratados de forma confidencial y quedarán incorporados a la correspondiente actividad de tratamiento titularidad de los alumnos desarrolladores del proyecto de esta tienda deportiva."
+    },
+    "purpose": {
+      "title": "2. Finalidad del tratamiento",
+      "intro": "Tratamos la información que nos facilitan las personas interesadas con el fin de:",
+      "list": {
+        "register": "Gestionar el registro de usuarios en la plataforma.",
+        "orders": "Procesar pedidos simulados y gestionar el carrito de la compra.",
+        "wishlist": "Gestionar la lista de deseos (favoritos)."
+      }
+    },
+    "legitimation": {
+      "title": "3. Legitimación",
+      "text": "La base legal para el tratamiento de sus datos es el <strong>consentimiento</strong> del interesado al registrarse voluntariamente en nuestra plataforma académica."
+    },
+    "rights": {
+      "title": "4. Derechos del usuario",
+      "intro": "Cualquier persona tiene derecho a obtener confirmación sobre si estamos tratando datos personales que les conciernan o no. Las personas interesadas tienen derecho a:",
+      "list": {
+        "access": "Solicitar el acceso a los datos personales.",
+        "rectification": "Solicitar su rectificación o supresión.",
+        "limitation": "Solicitar la limitación de su tratamiento.",
+        "opposition": "Oponerse al tratamiento."
+      }
+    }
+  },
+  "returns": {
+    "title": "Envíos y Devoluciones",
+    "shipping": {
+      "title": "1. Política de Envíos",
+      "text": "Al tratarse de un proyecto académico, <strong>no se realizan envíos físicos reales</strong>. Los tiempos mostrados en la web son simulaciones para recrear la experiencia de usuario.",
+      "standard": "🚚 <strong>Envío Estándar:</strong> 3-5 días laborables",
+      "express": "🚀 <strong>Envío Express:</strong> 24/48 horas"
+    },
+    "withdrawal": {
+      "title": "2. Derecho de Desistimiento",
+      "text1": "De conformidad con la normativa vigente, el cliente dispondría (en un entorno real) del derecho a desistir de su compra en un plazo de <strong>14 días naturales</strong> sin necesidad de justificación.",
+      "text2": "El plazo de desistimiento expirará a los 14 días naturales del día que usted o un tercero por usted indicado, distinto del transportista, adquirió la posesión material de los bienes."
+    },
+    "warranty": {
+      "title": "3. Garantía de los productos",
+      "text": "En caso de producto defectuoso, el vendedor deberá proceder, según corresponda, a la reparación, sustitución, rebaja del precio o resolución del contrato, gestiones que serán gratuitas para el consumidor y usuario. El vendedor responde de las faltas de conformidad que se manifiesten en un plazo de <strong>tres años</strong> desde la entrega."
+    },
+    "procedure": {
+      "title": "4. Procedimiento de devolución",
+      "text": "Para ejercer su derecho de devolución, debería contactar con nuestro servicio de atención al cliente a través del correo <span>devoluciones@tiendadeportiva.test</span> facilitando el número de pedido y el motivo de la devolución (opcional)."
+    }
+  },
+  "secure_purchase": {
+    "title": "Compra Segura",
+    "intro": "Tu seguridad es nuestra prioridad. Hemos implementado los estándares más altos de protección para que compres con total tranquilidad.",
+    "ssl": {
+      "title": "🔒 Seguridad SSL",
+      "text": "Toda la navegación en nuestra web está protegida mediante protocolo <strong>HTTPS</strong> con cifrado SSL de 256 bits. Esto garantiza que tus datos viajan encriptados y son inaccesibles para terceros."
+    },
+    "methods": {
+      "title": "💳 Métodos de Pago",
+      "text": "Aceptamos el método de pago a través de una pasarela de pago:",
+      "list": {
+        "card": "<strong>Tarjeta de Crédito/Débito:</strong> Procesado a través de pasarela segura bancaria."
+      }
+    },
+    "protection": {
+      "title": "🛡️ Protección de Datos",
+      "text": "Cumplimos rigurosamente con el RGPD. Tus datos bancarios <strong>nunca se almacenan</strong> en nuestros servidores; se envían directamente a la entidad financiera a través de canales seguros."
+    }
+  },
+  "stores": {
+    "title": "Nuestras Tiendas",
+    "intro": "Aunque nuestra alma es digital, puedes encontrarnos en el corazón del campus universitario.",
+    "central": {
+      "title": "📍 Sede Central",
+      "name": "Campus San Vicente",
+      "address1": "Carretera de San Vicente del Raspeig s/n",
+      "address2": "03690 San Vicente del Raspeig (Alicante)",
+      "building": "<strong>Edificio Politécnica IV</strong>"
+    },
+    "hours": {
+      "title": "Horario de Atención",
+      "week": "<strong>Lunes - Viernes:</strong> 09:00 - 20:00",
+      "saturday": "<strong>Sábados:</strong> 10:00 - 14:00",
+      "sunday": "<strong>Domingos:</strong> Cerrado (¡Estamos programando!)"
+    },
+    "online": {
+      "title": "🌍 Venta Online",
+      "text": "Recuerda que nuestra tienda online está abierta las <strong>24 horas del día, los 365 días del año</strong>. Realiza tu pedido desde cualquier lugar y recíbelo cómodamente."
+    }
+  },
+  "sports_list": {
+    "running": "Running",
+    "cycling": "Ciclismo",
+    "football": "Fútbol",
+    "basketball": "Baloncesto",
+    "tennis": "Tenis",
+    "swimming": "Natación"
+  },
+  "cart": {
+    "title": "Tu carrito",
+    "empty_message": "Tu carrito está vacío.",
+    "continue_shopping": "Seguir comprando",
+    "size": "Talla",
+    "quantity": "Cantidad",
+    "move_to_favorites": "Mover a favoritos",
+    "remove": "Eliminar",
+    "confirm_remove": "¿Seguro que quieres eliminar este producto?",
+    "summary": {
+      "title": "Resumen del pedido",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "vat_included": "IVA incluido",
+      "discount_code": "¿Tienes un código o un vale descuento?",
+      "code_placeholder": "Código",
+      "apply": "Aplicar",
+      "checkout": "Realizar compra"
+    },
+    "trust": {
+      "shipping": "Envío gratis a partir de 49 €",
+      "secure": "Compra segura 100% garantizada",
+      "returns": "Devoluciones hasta el 15 de Febrero de 2026"
+    }
+  },
+  "notifications": {
+    "product_removed": "Producto eliminado",
+    "moved_to_favorites": "Movido a favoritos"
+  },
+  "checkout": {
+    "title": "Finalizar Compra",
+    "steps": {
+      "identification": "Identificación",
+      "shipping": "Envío",
+      "payment": "Pago"
+    },
+    "login_prompt": {
+      "title": "Identificación",
+      "message": "Para continuar con tu compra, necesitas iniciar sesión o registrarte.",
+      "login_btn": "Iniciar Sesión",
+      "register_btn": "Crear Cuenta"
+    },
+    "shipping": {
+      "title": "Método de Envío",
+      "delivery_options": {
+        "home": "Envío a Domicilio",
+        "store": "Recogida en Tienda"
+      },
+      "select_address": "Selecciona una dirección de entrega:",
+      "add_address": "+ Nueva dirección",
+      "edit": "Editar",
+      "select_store": "Selecciona tu tienda más cercana:",
+      "store_hours": "Horario:",
+      "continue_btn": "Continuar al Pago"
+    },
+    "payment": {
+      "title": "Método de Pago",
+      "delivery_summary": "Opción de entrega seleccionada:",
+      "options": {
+        "card": "Tarjeta de Crédito / Débito",
+        "paypal": "PayPal",
+        "bizum": "Bizum",
+        "cash": "Pago en Tienda (Efectivo/Tarjeta)"
+      },
+      "secure_msg": "Estás en una pasarela de pago 100% segura",
+      "pay_btn": "Pagar {amount}"
+    },
+    "summary": {
+      "title": "Resumen",
+      "subtotal": "Subtotal",
+      "shipping": "Gastos de envío",
+      "free": "GRATIS",
+      "total": "Total a Pagar",
+      "VAT": "IVA incluido"
+    },
+    "my_products": "Mis Productos",
+    "success": {
+      "title": "¡Pedido Confirmado!",
+      "message": "Muchas gracias por tu compra. Hemos enviado un email de confirmación con todos los detalles.",
+      "order_ref": "Referencia del pedido:",
+      "home_btn": "Volver a la tienda"
+    },
+    "processing": "Procesando pago con el banco..."
+  },
+  "address_modal": {
+    "title_new": "Añadir Dirección",
+    "title_edit": "Editar Dirección",
+    "error_fields": "Por favor rellena todos los campos obligatorios"
+  },
+  "login": {
+    "title": "Bienvenido de nuevo",
+    "subtitle": "Introduce tus credenciales para acceder a tu cuenta.",
+    "email_label": "Correo electrónico",
+    "email_placeholder": "ejemplo@email.com",
+    "password_label": "Contraseña",
+    "submit_btn": "Iniciar Sesión",
+    "loading_btn": "Entrando...",
+    "no_account": "¿No tienes cuenta?",
+    "register_link": "Regístrate gratis",
+    "notifications": {
+      "validation_error": "Por favor, introduce tu email y contraseña.",
+      "success": "¡Has iniciado sesión correctamente!",
+      "auth_error": "Credenciales incorrectas. Inténtalo de nuevo."
+    }
+  },
+  "register": {
+    "title": "¡Regístrate en sólo unos minutos!",
+    "steps": {
+      "account": "Cuenta",
+      "personal": "Datos personales",
+      "additional": "Información adicional"
+    },
+    "account": {
+      "username": "Nombre de usuario",
+      "username_placeholder": "Tu nombre de usuario",
+      "email": "Correo electrónico *",
+      "email_placeholder": "Tu email",
+      "password": "Contraseña *",
+      "confirm_password": "Repetir contraseña *",
+      "password_placeholder": ".........."
+    },
+    "personal": {
+      "name": "Nombre *",
+      "name_placeholder": "Tu nombre",
+      "surname": "Apellidos *",
+      "surname_placeholder": "Tus apellidos",
+      "phone": "Teléfono móvil *",
+      "phone_placeholder": "616 16 16 16",
+      "birthdate": "Fecha de nacimiento"
+    },
+    "additional": {
+      "intro": "Personaliza tu experiencia (opcional):",
+      "gender": "Género",
+      "gender_placeholder": "Hombre / Mujer / Niño...",
+      "size": "Talla",
+      "size_placeholder": "Elige...",
+      "foot_size": "Talla de pie",
+      "foot_size_placeholder": "Nº pie",
+      "interests": "Interés por el deporte:",
+      "terms": "He leído y acepto los <a href=\"#\">términos y condiciones</a> *.",
+      "newsletter": "Acepto recibir novedades y ofertas promocionales."
+    },
+    "buttons": {
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "submit": "Crear Cuenta",
+      "loading": "Registrando..."
+    },
+    "notifications": {
+      "password_mismatch": "Revisa los campos y que las contraseñas coincidan.",
+      "missing_personal": "Completa los datos personales obligatorios.",
+      "terms_required": "Debes aceptar los términos y condiciones.",
+      "success": "¡Bienvenido/a {name}!",
+      "error": "Error al registrarse. Verifica el email."
+    }
+  },
+  "home": {
+    "categories": {
+      "title": "Categorías"
+    },
+    "featured": {
+      "title": "Artículos destacados"
+    }
+  },
+  "product_detail": {
+    "other_colors": "Otros colores",
+    "select_size": "Selecciona una talla",
+    "quantity": "Cantidad:",
+    "in_stock": "En stock",
+    "out_of_stock": "No disponible",
+    "add_to_cart": "Añadir al carrito",
+    "details": "Detalles",
+    "features": "Características:",
+    "composition": "Composición:",
+    "reviews": "Opiniones ({count})",
+    "loading": "Cargando producto...",
+    "not_found": "⚠️ Producto no encontrado",
+    "not_found_msg": "Parece que el artículo que buscas no existe o ha sido eliminado.",
+    "back_to_store": "Volver a la tienda",
+    "notifications": {
+      "select_size_error": "Por favor, selecciona una talla.",
+      "added_success": "Producto añadido al carrito correctamente",
+      "wishlist_info": "Añadido a lista de deseos"
+    }
+  },
+  "search_page": {
+    "filters": {
+      "price": "Precio",
+      "brand": "Marca",
+      "gender": "Género",
+      "size": "Talla",
+      "size_adults": "Adultos",
+      "size_kids": "Niños",
+      "foot_size": "Talla de pie",
+      "color": "Color",
+      "stores": "Tiendas",
+      "stores_list": {
+        "madrid": "Madrid centro",
+        "barcelona": "Barcelona diagonal",
+        "valencia": "Valencia puerto"
+      },
+      "gender_values": {
+        "Hombre": "Hombre",
+        "Mujer": "Mujer",
+        "Niño": "Niño",
+        "Niña": "Niña"
+      }
+    },
+    "results": {
+      "title": "Resultados de búsqueda",
+      "no_results": "Sin resultados",
+      "try_filters": "Intenta cambiar los filtros."
+    }
+  },
+  "colors": {
+    "black": "Negro",
+    "white": "Blanco",
+    "grey": "Gris",
+    "blue": "Azul",
+    "red": "Rojo",
+    "green": "Verde",
+    "yellow": "Amarillo",
+    "orange": "Naranja",
+    "pink": "Rosa",
+    "purple": "Morado",
+    "multicolor": "Multicolor"
+  }
+}
