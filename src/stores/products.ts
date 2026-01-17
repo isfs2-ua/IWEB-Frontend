@@ -8,7 +8,7 @@ export const useProductStore = defineStore('products', () => {
 
   const fetchProducts = async () => {
     try {
-      // OBTENEMOS LA CLAVE DEL ENTORNO
+      // Obtenemos la clave del entorno
       const apiKey = import.meta.env.VITE_API_KEY
 
       // FORZAMOS LA CABECERA AQUÍ

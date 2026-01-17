@@ -37,7 +37,8 @@ export interface Product {
   id: number
   nombre: string
   referencia: number
-  descripcion: string
+  descripcionCorta: string 
+  descripcionLarga: string
   marca: string
   precio: number
   precio_oferta: number | null // Puede ser nulo si no hay oferta

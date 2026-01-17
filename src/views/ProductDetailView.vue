@@ -30,6 +30,11 @@ const loadProduct = () => {
     console.log('✅ Producto encontrado:', foundProduct.nombre)
     product.value = foundProduct
     // Inicializar imagen principal si existe
+    if (product.value.variantes && product.value.variantes.length > 0) {
+      const tallasUnicas = [...new Set(product.value.variantes.map(v => v.talla).filter(t => t))]
+      product.value.tallas = tallasUnicas
+    }
+
     if (product.value.media && product.value.media.length > 0) {
       selectedImage.value = product.value.media[0].url
     }
@@ -147,7 +152,7 @@ const toggleWishlist = () => {
         </div>
 
         <div v-show="showDetails" class="accordion-content">
-          <p class="description">{{ product.descripcion }}</p>
+          <p class="description">{{ product.descripcionLarga }}</p>
 
           <div v-if="product.caracteristicas">
             <h4>Características:</h4>
