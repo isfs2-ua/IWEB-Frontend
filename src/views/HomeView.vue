@@ -20,7 +20,7 @@ onMounted(() => {
     <div class="container main-content">
       <section class="section categories">
         <div class="section-header">
-          <h2>Categorías</h2>
+          <h2>{{ $t('home.categories.title') }}</h2>
           <div class="nav-arrows"><button>&lt;</button> <button>&gt;</button></div>
         </div>
 
@@ -34,7 +34,7 @@ onMounted(() => {
 
       <section class="section featured">
         <div class="section-header">
-          <h2 class="orange-title">Artículos destacados</h2>
+          <h2 class="orange-title">{{ $t('home.featured.title') }}</h2>
         </div>
 
         <div class="products-grid">

@@ -1,37 +1,41 @@
 <template>
   <div class="legal-container">
     <div class="legal-content">
-      <h1 class="text-orange">Política de Privacidad</h1>
-      <p class="intro">En Tienda Deportiva estamos comprometidos con la protección de la privacidad y la seguridad de tus datos personales. Esta política describe cómo recopilamos, usamos y protegemos tu información.</p>
+      <h1 class="text-orange">{{ $t('privacy.title') }}</h1>
+      <p class="intro">
+        {{ $t('privacy.intro') }}
+      </p>
 
       <section>
-        <h2>1. Responsable del Tratamiento</h2>
-        <p>Los datos de carácter personal que se pudieran recabar directamente del interesado serán tratados de forma confidencial y quedarán incorporados a la correspondiente actividad de tratamiento titularidad de los alumnos desarrolladores del proyecto de esta tienda deportiva.</p>
+        <h2>{{ $t('privacy.controller.title') }}</h2>
+        <p>
+          {{ $t('privacy.controller.text') }}
+        </p>
       </section>
 
       <section>
-        <h2>2. Finalidad del tratamiento</h2>
-        <p>Tratamos la información que nos facilitan las personas interesadas con el fin de:</p>
+        <h2>{{ $t('privacy.purpose.title') }}</h2>
+        <p>{{ $t('privacy.purpose.intro') }}</p>
         <ul class="check-list">
-          <li>Gestionar el registro de usuarios en la plataforma.</li>
-          <li>Procesar pedidos simulados y gestionar el carrito de la compra.</li>
-          <li>Gestionar la lista de deseos (favoritos).</li>
+          <li>{{ $t('privacy.purpose.list.register') }}</li>
+          <li>{{ $t('privacy.purpose.list.orders') }}</li>
+          <li>{{ $t('privacy.purpose.list.wishlist') }}</li>
         </ul>
       </section>
 
       <section>
-        <h2>3. Legitimación</h2>
-        <p>La base legal para el tratamiento de sus datos es el <strong>consentimiento</strong> del interesado al registrarse voluntariamente en nuestra plataforma académica.</p>
+        <h2>{{ $t('privacy.legitimation.title') }}</h2>
+        <p v-html="$t('privacy.legitimation.text')"></p>
       </section>
 
       <section>
-        <h2>4. Derechos del usuario</h2>
-        <p>Cualquier persona tiene derecho a obtener confirmación sobre si estamos tratando datos personales que les conciernan o no. Las personas interesadas tienen derecho a:</p>
+        <h2>{{ $t('privacy.rights.title') }}</h2>
+        <p>{{ $t('privacy.rights.intro') }}</p>
         <ul class="check-list">
-          <li>Solicitar el acceso a los datos personales.</li>
-          <li>Solicitar su rectificación o supresión.</li>
-          <li>Solicitar la limitación de su tratamiento.</li>
-          <li>Oponerse al tratamiento.</li>
+          <li>{{ $t('privacy.rights.list.access') }}</li>
+          <li>{{ $t('privacy.rights.list.rectification') }}</li>
+          <li>{{ $t('privacy.rights.list.limitation') }}</li>
+          <li>{{ $t('privacy.rights.list.opposition') }}</li>
         </ul>
       </section>
     </div>

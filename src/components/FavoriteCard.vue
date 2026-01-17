@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Product } from '@/types'
 import { useWishlistStore } from '@/stores/wishlist'
 import { useNotificationStore } from '@/stores/notification'
@@ -8,6 +9,7 @@ const props = defineProps<{
   product: Product
 }>()
 
+const { t } = useI18n()
 const wishlistStore = useWishlistStore()
 const notificationStore = useNotificationStore()
 
@@ -16,18 +18,18 @@ const selectedSize = ref('')
 // Eliminar de favoritos
 const removeFavorite = () => {
   wishlistStore.toggleWishlist(props.product.id)
-  notificationStore.showNotification('Eliminado de favoritos', 'info')
+  notificationStore.showNotification(t('favorites.removed'), 'info')
 }
 
 // Añadir al carrito desde la tarjeta
 const addToCart = () => {
   // Si el producto tiene tallas, obligamos a elegir una
   if (props.product.tallas && props.product.tallas.length > 0 && !selectedSize.value) {
-    notificationStore.showNotification('Por favor, selecciona una talla.', 'error')
+    notificationStore.showNotification(t('product.error_size'), 'error')
     return
   }
 
-  notificationStore.showNotification('¡Producto añadido al carrito!', 'success')
+  notificationStore.showNotification(t('product.added_cart'), 'success')
   // Aquí llamarías a cartStore.addItem(...)
 }
 </script>
@@ -54,7 +56,7 @@ const addToCart = () => {
           v-model="selectedSize"
           class="size-select"
         >
-          <option value="" disabled selected>Selecciona Talla</option>
+          <option value="" disabled selected>{{ $t('product.select_size') }}</option>
           <option v-for="talla in product.tallas" :key="talla" :value="talla">
             {{ talla }}
           </option>
@@ -84,7 +86,7 @@ const addToCart = () => {
 
 <style scoped>
 .fav-card {
-  border: 1px solid #ffdcb0; /* Borde naranja suave */
+  border: 1px solid #ffdcb0;
   border-radius: 8px;
   padding: 15px;
   position: relative;

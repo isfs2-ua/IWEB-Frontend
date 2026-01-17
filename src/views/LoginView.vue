@@ -3,7 +3,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notification'
+import { useI18n } from 'vue-i18n' // <--- IMPORTACIÓN
 
+const { t } = useI18n() // <--- USO
 const router = useRouter()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
@@ -16,7 +18,8 @@ const isLoading = ref(false)
 const handleLogin = async () => {
   // Validación básica
   if (!email.value || !password.value) {
-    notificationStore.showNotification('Por favor, introduce tu email y contraseña.', 'error')
+    // Texto traducido en notificación
+    notificationStore.showNotification(t('login.notifications.validation_error'), 'error')
     return
   }
 
@@ -28,11 +31,11 @@ const handleLogin = async () => {
   isLoading.value = false
 
   if (success) {
-    notificationStore.showNotification('¡Has iniciado sesión correctamente!', 'success')
+    notificationStore.showNotification(t('login.notifications.success'), 'success')
     router.push('/')
   } else {
     // Si falla, el store ya suele loguear el error, aquí avisamos al usuario
-    notificationStore.showNotification('Credenciales incorrectas. Inténtalo de nuevo.', 'error')
+    notificationStore.showNotification(t('login.notifications.auth_error'), 'error')
   }
 }
 </script>
@@ -41,13 +44,13 @@ const handleLogin = async () => {
   <div class="login-container">
     <div class="login-card">
       <div class="header">
-        <h2 class="title">Bienvenido de nuevo</h2>
-        <p class="subtitle">Introduce tus credenciales para acceder a tu cuenta.</p>
+        <h2 class="title">{{ $t('login.title') }}</h2>
+        <p class="subtitle">{{ $t('login.subtitle') }}</p>
       </div>
 
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
-          <label for="email">Correo electrónico</label>
+          <label for="email">{{ $t('login.email_label') }}</label>
           <div class="input-wrapper">
             <svg
               class="input-icon"
@@ -70,7 +73,7 @@ const handleLogin = async () => {
               id="email"
               v-model="email"
               type="email"
-              placeholder="ejemplo@email.com"
+              :placeholder="$t('login.email_placeholder')"
               required
               autofocus
             />
@@ -78,7 +81,7 @@ const handleLogin = async () => {
         </div>
 
         <div class="form-group">
-          <label for="password">Contraseña</label>
+          <label for="password">{{ $t('login.password_label') }}</label>
           <div class="input-wrapper">
             <svg
               class="input-icon"
@@ -106,11 +109,14 @@ const handleLogin = async () => {
         </div>
 
         <button type="submit" class="btn-primary" :disabled="isLoading">
-          {{ isLoading ? 'Entrando...' : 'Iniciar Sesión' }}
+          {{ isLoading ? $t('login.loading_btn') : $t('login.submit_btn') }}
         </button>
 
         <div class="footer-links">
-          <p>¿No tienes cuenta? <RouterLink to="/register">Regístrate gratis</RouterLink></p>
+          <p>
+            {{ $t('login.no_account') }} 
+            <RouterLink to="/register">{{ $t('login.register_link') }}</RouterLink>
+          </p>
         </div>
       </form>
     </div>

@@ -1,57 +1,50 @@
 <template>
   <div class="legal-container">
     <div class="legal-content">
-      <h1 class="text-orange">Política de Cookies</h1>
+      <h1 class="text-orange">{{ $t('cookies.title') }}</h1>
       <p class="intro">
-        En Tienda Deportiva utilizamos cookies propias y de terceros para mejorar la experiencia de navegación, 
-        gestionar el contenido de tu carrito y permitir el acceso a áreas privadas.
+        {{ $t('cookies.intro') }}
       </p>
 
       <section>
-        <h2>1. ¿Qué es una cookie?</h2>
+        <h2>{{ $t('cookies.what_is.title') }}</h2>
         <p>
-          Una cookie es un pequeño fichero de texto que se almacena en tu navegador cuando visitas casi cualquier página web. 
-          Su utilidad es que la web sea capaz de recordar tu visita cuando vuelvas a navegar por esa página.
+          {{ $t('cookies.what_is.text') }}
         </p>
       </section>
 
       <section>
-        <h2>2. Cookies que utiliza esta web</h2>
-        <p>Siguiendo las directrices de la Agencia Española de Protección de Datos, detallamos el uso de cookies que hace esta web:</p>
+        <h2>{{ $t('cookies.used_cookies.title') }}</h2>
+        <p>{{ $t('cookies.used_cookies.intro') }}</p>
         
         <div class="cookie-type">
-          <h3>🍪 Cookies Técnicas (Necesarias)</h3>
-          <p>Son aquellas esenciales para el funcionamiento de la web. En nuestro caso, las utilizamos para:</p>
+          <h3>{{ $t('cookies.used_cookies.technical.title') }}</h3>
+          <p>{{ $t('cookies.used_cookies.technical.text') }}</p>
           <ul class="check-list">
-            <li>Mantener tu sesión abierta (Login).</li>
-            <li>Recordar los productos que has añadido al carrito.</li>
-            <li>Gestionar la seguridad durante la navegación.</li>
+            <li>{{ $t('cookies.used_cookies.technical.list.session') }}</li>
+            <li>{{ $t('cookies.used_cookies.technical.list.cart') }}</li>
+            <li>{{ $t('cookies.used_cookies.technical.list.security') }}</li>
           </ul>
         </div>
 
         <div class="cookie-type">
-          <h3>📊 Cookies de Análisis</h3>
+          <h3>{{ $t('cookies.used_cookies.analysis.title') }}</h3>
           <p>
-            Al tratarse de un proyecto académico, no utilizamos herramientas de rastreo real como Google Analytics, 
-            aunque en un entorno de producción real se usarían para cuantificar el número de usuarios y realizar 
-            la medición y análisis estadístico.
+            {{ $t('cookies.used_cookies.analysis.text') }}
           </p>
         </div>
       </section>
 
       <section>
-        <h2>3. Desactivación o eliminación</h2>
+        <h2>{{ $t('cookies.deactivation.title') }}</h2>
         <p>
-          En cualquier momento puedes ejercer tu derecho de desactivación o eliminación de cookies de este sitio web. 
-          Estas acciones se realizan de forma diferente en función del navegador que estés usando (Chrome, Firefox, Safari, etc.).
+          {{ $t('cookies.deactivation.text') }}
         </p>
       </section>
 
       <section>
-        <h2>4. Notas adicionales</h2>
-        <p class="warning-box">
-          Este sitio web es un <strong>proyecto académico</strong>. No se recogen datos de navegación con fines comerciales ni publicitarios.
-        </p>
+        <h2>{{ $t('cookies.notes.title') }}</h2>
+        <p class="warning-box" v-html="$t('cookies.notes.text')"></p>
       </section>
     </div>
   </div>

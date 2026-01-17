@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
@@ -22,24 +21,26 @@ const handleLogout = () => {
       <ul>
         <li>
           <RouterLink to="/profile" :class="{ active: isActive('/profile') }">
-            Mis Datos
+            {{ $t('profile.menu.my_data') }}
           </RouterLink>
         </li>
 
         <li>
           <RouterLink to="/profile/orders" :class="{ active: isActive('/profile/orders') }">
-            Mis pedidos
+            {{ $t('profile.menu.my_orders') }}
           </RouterLink>
         </li>
 
         <li>
           <RouterLink to="/profile/favorites" :class="{ active: isActive('/profile/favorites') }">
-            Favoritos
+            {{ $t('profile.menu.favorites') }}
           </RouterLink>
         </li>
 
         <li>
-          <button @click="handleLogout" class="logout-link">Cerrar sesión</button>
+          <button @click="handleLogout" class="logout-link">
+            {{ $t('profile.menu.logout') }}
+          </button>
         </li>
       </ul>
     </nav>

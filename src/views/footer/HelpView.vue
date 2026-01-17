@@ -1,34 +1,34 @@
 <template>
   <div class="legal-container">
     <div class="legal-content">
-      <h1 class="text-orange">Ayuda y Preguntas Frecuentes</h1>
-      <p class="intro">¿Tienes dudas? Aquí resolvemos las consultas más habituales de nuestros clientes.</p>
+      <h1 class="text-orange">{{ $t('help.title') }}</h1>
+      <p class="intro">{{ $t('help.intro') }}</p>
 
       <div class="faq-section">
         <details open>
-          <summary>📦 ¿Cuánto tardará en llegar mi pedido?</summary>
-          <p>Los envíos peninsulares suelen tardar entre 24 y 48 horas laborables. Para las islas, el plazo es de 3-5 días.</p>
+          <summary>{{ $t('help.faq.shipping.question') }}</summary>
+          <p>{{ $t('help.faq.shipping.answer') }}</p>
         </details>
 
         <details>
-          <summary>🔄 ¿Cómo puedo devolver un producto?</summary>
-          <p>Tienes 30 días para devoluciones. Entra en tu perfil, ve a "Mis Pedidos" y selecciona la opción "Solicitar Devolución". Te enviaremos una etiqueta prepagada.</p>
+          <summary>{{ $t('help.faq.returns.question') }}</summary>
+          <p>{{ $t('help.faq.returns.answer') }}</p>
         </details>
 
         <details>
-          <summary>🔑 He olvidado mi contraseña, ¿qué hago?</summary>
-          <p>En la pantalla de Login, pulsa sobre "¿Olvidaste tu contraseña?". Recibirás un email para restablecerla de forma segura.</p>
+          <summary>{{ $t('help.faq.password.question') }}</summary>
+          <p>{{ $t('help.faq.password.answer') }}</p>
         </details>
 
         <details>
-          <summary>🧾 ¿Recibiré factura de mi compra?</summary>
-          <p>Sí, recibirás un email con la factura simplificada automáticamente. También puedes descargarla desde tu área de cliente.</p>
+          <summary>{{ $t('help.faq.invoice.question') }}</summary>
+          <p>{{ $t('help.faq.invoice.answer') }}</p>
         </details>
       </div>
 
       <section class="contact-box">
-        <h2>¿Necesitas más ayuda?</h2>
-        <p>Nuestro equipo de soporte está disponible para ti.</p>
+        <h2>{{ $t('help.contact.title') }}</h2>
+        <p>{{ $t('help.contact.text') }}</p>
         <p class="email">📧 soporte@tiendadeportiva.test</p>
       </section>
     </div>

@@ -4,11 +4,15 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { useNotificationStore } from '@/stores/notification'
+import { useI18n } from 'vue-i18n' // Importar i18n
 import type { Address } from '@/types'
 
 // Componentes
 import BaseModal from '@/components/BaseModal.vue'
 import AddressForm from '@/components/AddressForm.vue'
+
+// Inicializar i18n
+const { t, locale } = useI18n()
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -17,8 +21,8 @@ const notificationStore = useNotificationStore()
 
 // --- ESTADO GENERAL ---
 const currentStep = ref(1)
-const orderCompleted = ref(false) // <--- NUEVO: Controla si mostramos el éxito
-const orderReference = ref('') // <--- NUEVO: Guarda el nº de pedido
+const orderCompleted = ref(false)
+const orderReference = ref('')
 
 // --- ESTADO DE ENVÍO ---
 type DeliveryMethod = 'shipping' | 'store'
@@ -30,6 +34,14 @@ const selectedStoreId = ref<number | null>(null)
 const selectedPaymentMethod = ref('')
 const isProcessingPayment = ref(false)
 
+// Función para formatear precio según idioma (ES: 25,50 €, EN: 25.50 €)
+const formatPrice = (price: number) => {
+  return price.toLocaleString(locale.value, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+}
+
 // Vigilante para resetear pago si cambia envío
 watch(deliveryMethod, (newMethod) => {
   if (newMethod === 'shipping' && selectedPaymentMethod.value === 'cash') {
@@ -39,30 +51,10 @@ watch(deliveryMethod, (newMethod) => {
 
 // Datos Mock de Tiendas
 const stores = [
-  {
-    id: 101,
-    nombre: 'Madrid Centro',
-    direccion: 'C/ Gran Vía 55, 28013 Madrid',
-    horario: '10:00 - 21:00',
-  },
-  {
-    id: 102,
-    nombre: 'Valencia Puerto',
-    direccion: 'Av. del Puerto 10, 46021 Valencia',
-    horario: '09:00 - 20:30',
-  },
-  {
-    id: 103,
-    nombre: 'Barcelona Diagonal',
-    direccion: 'Av. Diagonal 200, 08018 Barcelona',
-    horario: '10:00 - 21:00',
-  },
-  {
-    id: 104,
-    nombre: 'Sevilla',
-    direccion: 'C/ Sierpes 12, 41004 Sevilla',
-    horario: '10:00 - 21:00',
-  },
+  { id: 101, nombre: 'Madrid Centro', direccion: 'C/ Gran Vía 55, 28013 Madrid', horario: '10:00 - 21:00' },
+  { id: 102, nombre: 'Valencia Puerto', direccion: 'Av. del Puerto 10, 46021 Valencia', horario: '09:00 - 20:30' },
+  { id: 103, nombre: 'Barcelona Diagonal', direccion: 'Av. Diagonal 200, 08018 Barcelona', horario: '10:00 - 21:00' },
+  { id: 104, nombre: 'Sevilla', direccion: 'C/ Sierpes 12, 41004 Sevilla', horario: '10:00 - 21:00' },
 ]
 
 // --- CÁLCULOS DEL RESUMEN ---
@@ -80,7 +72,7 @@ const canCheckout = computed(() => {
   return currentStep.value === 3 && selectedPaymentMethod.value !== ''
 })
 
-// --- ACCIÓN FINAL (ACTUALIZADA) ---
+// --- ACCIÓN FINAL ---
 const finalizePurchase = () => {
   if (!canCheckout.value) return
 
@@ -132,13 +124,16 @@ onMounted(() => {
   }
 })
 
+// Texto dinámico para el resumen
 const selectedDeliverySummary = computed(() => {
   if (deliveryMethod.value === 'shipping') {
     const addr = authStore.user?.direcciones.find((d) => d.id === selectedAddressId.value)
-    return addr ? `Envío a: ${addr.calle}, ${addr.ciudad}` : ''
+    // Usamos la traducción para "Envío a Domicilio"
+    return addr ? `${t('checkout.shipping.delivery_options.home')}: ${addr.calle}, ${addr.ciudad}` : ''
   } else {
     const store = stores.find((s) => s.id === selectedStoreId.value)
-    return store ? `Recogida en: Tienda ${store.nombre}` : ''
+    // Usamos la traducción para "Recogida en Tienda"
+    return store ? `${t('checkout.shipping.delivery_options.store')}: ${store.nombre}` : ''
   }
 })
 
@@ -158,15 +153,7 @@ const nextStep = () => {
 const openAddAddress = () => {
   isEditing.value = false
   Object.assign(addressForm, {
-    id: 0,
-    nombreCompleto: '',
-    telefono: '',
-    calle: '',
-    ciudad: '',
-    codigoPostal: '',
-    provincia: '',
-    pais: 'España',
-    esPrincipal: false,
+    id: 0, nombreCompleto: '', telefono: '', calle: '', ciudad: '', codigoPostal: '', provincia: '', pais: 'España', esPrincipal: false,
   })
   showAddressModal.value = true
 }
@@ -177,14 +164,11 @@ const openEditAddress = (addr: Address) => {
 }
 const saveAddress = () => {
   if (
-    !addressForm.nombreCompleto ||
-    !addressForm.calle ||
-    !addressForm.ciudad ||
-    !addressForm.codigoPostal ||
-    !addressForm.provincia ||
-    !addressForm.telefono
+    !addressForm.nombreCompleto || !addressForm.calle || !addressForm.ciudad ||
+    !addressForm.codigoPostal || !addressForm.provincia || !addressForm.telefono
   ) {
-    alert('Por favor rellena todos los campos obligatorios')
+    // ALERTA TRADUCIDA
+    alert(t('address_modal.error_fields'))
     return
   }
   if (authStore.user) {
@@ -209,17 +193,16 @@ const saveAddress = () => {
         <div class="step-item" :class="{ active: currentStep === 1, completed: currentStep > 1 }">
           <div class="step-header">
             <div class="step-number">1</div>
-            <h2>Datos de contacto</h2>
+            <h2>{{ $t('checkout.steps.identification') }}</h2>
           </div>
           <div v-if="currentStep === 1 && !authStore.isAuthenticated" class="step-content">
-            <p class="step-question">¿Ya tienes una cuenta con nosotros?</p>
-            <button @click="goToLogin" class="btn-primary">Iniciar sesión</button>
-            <p class="step-question mt-4">¿Todavía no tienes cuenta?</p>
-            <button @click="goToRegister" class="btn-primary">Regístrate</button>
+            <p class="step-question">{{ $t('checkout.login_prompt.message') }}</p>
+            <button @click="goToLogin" class="btn-primary">{{ $t('checkout.login_prompt.login_btn') }}</button>
+            <p class="step-question mt-4"></p> <button @click="goToRegister" class="btn-primary">{{ $t('checkout.login_prompt.register_btn') }}</button>
           </div>
           <div v-if="currentStep > 1" class="step-summary">
             <p class="summary-line">
-              Entregando a <strong>{{ authStore.user?.username }}</strong>
+              ✅ <strong>{{ authStore.user?.username }}</strong>
             </p>
           </div>
         </div>
@@ -234,7 +217,7 @@ const saveAddress = () => {
         >
           <div class="step-header">
             <div class="step-number">2</div>
-            <h2>Método de entrega</h2>
+            <h2>{{ $t('checkout.shipping.title') }}</h2>
           </div>
           <div v-if="currentStep === 2" class="step-content">
             <div class="delivery-tabs">
@@ -243,19 +226,20 @@ const saveAddress = () => {
                 :class="{ active: deliveryMethod === 'shipping' }"
                 @click="deliveryMethod = 'shipping'"
               >
-                🚚 Envío a domicilio
+                🚚 {{ $t('checkout.shipping.delivery_options.home') }}
               </button>
               <button
                 class="tab-btn"
                 :class="{ active: deliveryMethod === 'store' }"
                 @click="deliveryMethod = 'store'"
               >
-                🏪 Recogida en tienda
+                🏪 {{ $t('checkout.shipping.delivery_options.store') }}
               </button>
             </div>
 
             <div v-if="deliveryMethod === 'shipping'" class="shipping-section">
               <div v-if="authStore.user?.direcciones.length">
+                <p class="store-intro">{{ $t('checkout.shipping.select_address') }}</p>
                 <div
                   v-for="addr in authStore.user.direcciones"
                   :key="addr.id"
@@ -272,19 +256,19 @@ const saveAddress = () => {
                     </p>
                     <p class="addr-info">{{ addr.nombreCompleto }}</p>
                     <button class="btn-link-action" @click.stop="openEditAddress(addr)">
-                      Modificar dirección
+                      {{ $t('checkout.shipping.edit') }}
                     </button>
                   </div>
                 </div>
               </div>
               <div v-else class="no-address"><p>No tienes direcciones guardadas.</p></div>
               <button class="btn-link-add" @click="openAddAddress">
-                + Añadir una nueva dirección
+                {{ $t('checkout.shipping.add_address') }}
               </button>
             </div>
 
             <div v-else class="store-section">
-              <p class="store-intro">Selecciona tu tienda (Gratis):</p>
+              <p class="store-intro">{{ $t('checkout.shipping.select_store') }}</p>
               <div
                 v-for="store in stores"
                 :key="store.id"
@@ -300,6 +284,7 @@ const saveAddress = () => {
                     <strong>{{ store.nombre }}</strong>
                   </p>
                   <p class="addr-info">{{ store.direccion }}</p>
+                  <p class="addr-info"><small>{{ $t('checkout.shipping.store_hours') }} {{ store.horario }}</small></p>
                 </div>
               </div>
             </div>
@@ -313,29 +298,29 @@ const saveAddress = () => {
                 class="btn-continue"
                 @click="nextStep"
               >
-                Continuar al Pago
+                {{ $t('checkout.shipping.continue_btn') }}
               </button>
             </div>
           </div>
           <div v-if="currentStep > 2" class="step-summary">
-            <p>{{ selectedDeliverySummary }}</p>
+            <p>✅ {{ selectedDeliverySummary }}</p>
           </div>
         </div>
 
         <div class="step-item" :class="{ active: currentStep === 3, disabled: currentStep < 3 }">
           <div class="step-header">
             <div class="step-number">3</div>
-            <h2>Pago</h2>
+            <h2>{{ $t('checkout.payment.title') }}</h2>
           </div>
           <div v-if="currentStep === 3" class="step-content">
-            <p class="payment-intro">Selecciona tu método de pago:</p>
+            <p class="payment-intro">{{ $t('checkout.payment.delivery_summary') }}</p>
             <div class="payment-options">
               <label class="payment-card" :class="{ selected: selectedPaymentMethod === 'card' }">
                 <div class="radio-wrapper">
                   <input type="radio" value="card" v-model="selectedPaymentMethod" />
                 </div>
                 <div class="payment-info">
-                  <span class="payment-title">Tarjeta de Crédito / Débito</span>
+                  <span class="payment-title">{{ $t('checkout.payment.options.card') }}</span>
                   <div class="payment-icons">💳 <span class="small">Visa / Mastercard</span></div>
                 </div>
               </label>
@@ -348,10 +333,13 @@ const saveAddress = () => {
                   <input type="radio" value="cash" v-model="selectedPaymentMethod" />
                 </div>
                 <div class="payment-info">
-                  <span class="payment-title">Contrareembolso</span>
-                  <div class="payment-icons">💶 <span class="small">Paga en tienda</span></div>
+                  <span class="payment-title">{{ $t('checkout.payment.options.cash') }}</span>
+                  <div class="payment-icons">💶 <span class="small"></span></div>
                 </div>
               </label>
+            </div>
+            <div v-if="selectedPaymentMethod === 'card'" style="margin-top: 15px; color: #666; font-size: 0.9rem;">
+                🔒 {{ $t('checkout.payment.secure_msg') }}
             </div>
           </div>
         </div>
@@ -359,44 +347,46 @@ const saveAddress = () => {
 
       <div class="summary-column">
         <div class="summary-card top-card">
-          <h3>Resumen del pedido</h3>
+          <h3>{{ $t('checkout.summary.title') }}</h3>
           <div class="summary-row">
-            <span>Subtotal</span
-            ><span>{{ cartStore.subtotal.toFixed(2).replace('.', ',') }} €</span>
+            <span>{{ $t('checkout.summary.subtotal') }}</span>
+            <span>{{ formatPrice(cartStore.subtotal) }} €</span>
           </div>
           <div class="summary-row">
-            <span>Gastos de envío</span
-            ><span v-if="deliveryMethod === 'store'" class="green-text">Gratis</span
-            ><span v-else>{{
-              shippingCostDisplay === 0
-                ? 'Gratis'
-                : shippingCostDisplay.toFixed(2).replace('.', ',') + ' €'
-            }}</span>
+            <span>{{ $t('checkout.summary.shipping') }}</span>
+            <span v-if="deliveryMethod === 'store'" class="green-text">{{ $t('checkout.summary.free') }}</span>
+            <span v-else>
+              {{ shippingCostDisplay === 0 ? $t('checkout.summary.free') : formatPrice(shippingCostDisplay) + ' €' }}
+            </span>
           </div>
           <div class="summary-row total">
-            <span>Total</span><span>{{ totalDisplay.toFixed(2).replace('.', ',') }} €</span>
+            <span>{{ $t('checkout.summary.total') }}</span>
+            <span>{{ formatPrice(totalDisplay) }} €</span>
           </div>
-          <small class="tax-text">IVA incluido</small>
+          <small class="tax-text">{{ $t('checkout.summary.VAT') }}</small>
+          
           <button
             class="btn-checkout"
             :class="{ disabled: !canCheckout }"
             :disabled="!canCheckout"
             @click="finalizePurchase"
           >
-            {{ selectedPaymentMethod === 'cash' ? 'Confirmar Reserva' : 'Realizar Compra' }}
+             {{ $t('checkout.payment.pay_btn', { amount: formatPrice(totalDisplay) + ' €' }) }}
           </button>
+          
           <div class="shipping-info">
-            <span v-if="deliveryMethod === 'store'">🏪 Recogida en tienda seleccionada</span
-            ><span v-else>🚚 Envío gratis a partir de 49 €</span>
+            <span v-if="deliveryMethod === 'store'">🏪 {{ $t('checkout.shipping.delivery_options.store') }}</span>
+            <span v-else>🚚 {{ $t('cart.trust.shipping') || 'Envío gratis > 49€' }}</span>
           </div>
         </div>
+        
         <div class="summary-card products-card">
-          <h3>Mis productos</h3>
+          <h3>{{ $t('checkout.my_products') }}</h3>
           <div v-for="item in cartStore.items" :key="item.id" class="mini-product">
             <div class="mini-img"><img :src="item.imagen" /></div>
             <div class="mini-info">
               <p class="mini-name">{{ item.nombre }}</p>
-              <span class="mini-price">{{ (item.precio_oferta || item.precio).toFixed(2) }} €</span>
+              <span class="mini-price">{{ formatPrice(item.precio_oferta || item.precio) }} €</span>
             </div>
           </div>
         </div>
@@ -404,14 +394,14 @@ const saveAddress = () => {
 
       <div v-if="isProcessingPayment" class="gateway-overlay">
         <div class="gateway-box">
-          <h3>Enviando a la pasarela de pago, esperando confirmación</h3>
+          <h3>{{ $t('checkout.processing') }}</h3>
           <span class="loader">...</span>
         </div>
       </div>
 
       <BaseModal
         :show="showAddressModal"
-        :title="isEditing ? 'Modificar dirección' : 'Nueva dirección'"
+        :title="isEditing ? $t('address_modal.title_edit') : $t('address_modal.title_new')"
         @close="showAddressModal = false"
         @confirm="saveAddress"
       >
@@ -421,23 +411,20 @@ const saveAddress = () => {
 
     <div v-else class="success-container">
       <div class="success-box">
-        <h1>¡Pedido realizado, gracias!</h1>
+        <h1>{{ $t('checkout.success.title') }}</h1>
         <p class="ref-text">
-          Pedido con Nº referencia de: <strong>{{ orderReference }}</strong>
+          {{ $t('checkout.success.order_ref') }} <strong>{{ orderReference }}</strong>
         </p>
         <p class="info-text">
-          En breves le llegará un correo con la información del pedido y la estimación de entrega.
+          {{ $t('checkout.success.message') }}
         </p>
-        <button class="btn-back-home" @click="goToHome">Volver a la tienda</button>
+        <button class="btn-back-home" @click="goToHome">{{ $t('checkout.success.home_btn') }}</button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* (MANTÉN TODOS TUS ESTILOS ANTERIORES AQUÍ...) */
-/* container, steps-column, step-item, btn-primary, address-card, payment-card, etc. */
-
 .container {
   max-width: 1200px;
   margin: 0 auto;

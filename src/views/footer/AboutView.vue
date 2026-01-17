@@ -1,42 +1,37 @@
 <template>
   <div class="legal-container">
     <div class="legal-content">
-      <h1 class="text-orange">Quiénes Somos</h1>
+      <h1 class="text-orange">{{ $t('about.title') }}</h1>
       <p class="intro">
-        Bienvenido a Tienda Deportiva, tu referencia en equipamiento deportivo. 
-        Nacimos en las aulas de la Universidad de Alicante con una misión clara: demostrar que la tecnología y el deporte forman el equipo perfecto.
+        {{ $t('about.intro') }}
       </p>
 
       <section>
-        <h2>🏆 Nuestra Historia</h2>
-        <p>
-          Este proyecto comenzó como un desafío académico en la asignatura de <strong>Ingeniería Web</strong>. 
-          Lo que empezó con unas pocas líneas de código en Java y Vue.js se ha convertido en una plataforma de comercio electrónico completa, 
-          diseñada para ofrecer una experiencia de usuario fluida y moderna.
-        </p>
+        <h2>{{ $t('about.history.title') }}</h2>
+        <p v-html="$t('about.history.text')"></p>
       </section>
 
       <section>
-        <h2>🚀 Misión y Valores</h2>
+        <h2>{{ $t('about.mission.title') }}</h2>
         <div class="values-grid">
           <div class="value-card">
-            <h3>Innovación</h3>
-            <p>Utilizamos las últimas tecnologías (Spring Boot 3, Vue 3, Pinia) para construir software robusto.</p>
+            <h3>{{ $t('about.mission.innovation.title') }}</h3>
+            <p>{{ $t('about.mission.innovation.text') }}</p>
           </div>
           <div class="value-card">
-            <h3>Aprendizaje</h3>
-            <p>Cada bug es una lección; cada funcionalidad, un logro. Crecemos con cada commit.</p>
+            <h3>{{ $t('about.mission.learning.title') }}</h3>
+            <p>{{ $t('about.mission.learning.text') }}</p>
           </div>
           <div class="value-card">
-            <h3>Trabajo en Equipo</h3>
-            <p>Backend y Frontend unidos por una API REST. La colaboración es nuestra clave.</p>
+            <h3>{{ $t('about.mission.teamwork.title') }}</h3>
+            <p>{{ $t('about.mission.teamwork.text') }}</p>
           </div>
         </div>
       </section>
 
       <section>
-        <h2>👨‍💻 El Equipo</h2>
-        <p>Somos estudiantes apasionados por el desarrollo de software. Nos encargamos de todo el stack tecnológico, desde la base de datos hasta la interfaz que estás viendo ahora mismo.</p>
+        <h2>{{ $t('about.team.title') }}</h2>
+        <p>{{ $t('about.team.text') }}</p>
       </section>
     </div>
   </div>

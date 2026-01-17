@@ -10,7 +10,7 @@ const handleSearch = () => {
   if (searchQuery.value.trim()) {
     console.log('Buscando:', searchQuery.value)
 
-    // Navegamos a la vista de resultados (esto lo configuraremos en el router luego)
+    // Navegamos a la vista de resultados
     router.push({ name: 'search', query: { q: searchQuery.value } })
 
     // Por ahora, solo limpiamos el input para simular la acción
@@ -42,14 +42,13 @@ const handleSearch = () => {
       v-model="searchQuery"
       @keyup.enter="handleSearch"
       type="text"
-      placeholder="¿Qué buscas?"
+      :placeholder="$t('search.placeholder')"
       class="search-input"
     />
   </div>
 </template>
 
 <style scoped>
-/* Nos traemos los estilos que antes estaban en el Header */
 .search-input-wrapper {
   display: flex;
   align-items: center;

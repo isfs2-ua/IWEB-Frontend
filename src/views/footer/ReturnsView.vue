@@ -1,31 +1,34 @@
 <template>
   <div class="legal-container">
     <div class="legal-content">
-      <h1 class="text-orange">Envíos y Devoluciones</h1>
+      <h1 class="text-orange">{{ $t('returns.title') }}</h1>
       
       <section>
-        <h2>1. Política de Envíos</h2>
-        <p>Al tratarse de un proyecto académico, <strong>no se realizan envíos físicos reales</strong>. Los tiempos mostrados en la web son simulaciones para recrear la experiencia de usuario.</p>
+        <h2>{{ $t('returns.shipping.title') }}</h2>
+        <p v-html="$t('returns.shipping.text')"></p>
+        
         <div class="info-box">
-          <p>🚚 <strong>Envío Estándar:</strong> 3-5 días laborables</p>
-          <p>🚀 <strong>Envío Express:</strong> 24/48 horas</p>
+          <p v-html="$t('returns.shipping.standard')"></p>
+          <p v-html="$t('returns.shipping.express')"></p>
         </div>
       </section>
 
       <section>
-        <h2>2. Derecho de Desistimiento</h2>
-        <p>De conformidad con la normativa vigente, el cliente dispondría (en un entorno real) del derecho a desistir de su compra en un plazo de <strong>14 días naturales</strong> sin necesidad de justificación.</p>
-        <p>El plazo de desistimiento expirará a los 14 días naturales del día que usted o un tercero por usted indicado, distinto del transportista, adquirió la posesión material de los bienes.</p>
+        <h2>{{ $t('returns.withdrawal.title') }}</h2>
+        <p v-html="$t('returns.withdrawal.text1')"></p>
+        <p>
+          {{ $t('returns.withdrawal.text2') }}
+        </p>
       </section>
 
       <section>
-        <h2>3. Garantía de los productos</h2>
-        <p>En caso de producto defectuoso, el vendedor deberá proceder, según corresponda, a la reparación, sustitución, rebaja del precio o resolución del contrato, gestiones que serán gratuitas para el consumidor y usuario. El vendedor responde de las faltas de conformidad que se manifiesten en un plazo de <strong>tres años</strong> desde la entrega.</p>
+        <h2>{{ $t('returns.warranty.title') }}</h2>
+        <p v-html="$t('returns.warranty.text')"></p>
       </section>
 
       <section>
-        <h2>4. Procedimiento de devolución</h2>
-        <p>Para ejercer su derecho de devolución, debería contactar con nuestro servicio de atención al cliente a través del correo <span>devoluciones@tiendadeportiva.test</span> facilitando el número de pedido y el motivo de la devolución (opcional).</p>
+        <h2>{{ $t('returns.procedure.title') }}</h2>
+        <p v-html="$t('returns.procedure.text')"></p>
       </section>
     </div>
   </div>

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import type { Product } from '@/types'
 
 const props = defineProps<{
   product: Product
 }>()
 
+const { t } = useI18n()
 const router = useRouter()
 
 const goToDetail = () => {
@@ -17,6 +19,7 @@ const goToDetail = () => {
 
 const toggleWishlist = (e: Event) => {
   e.stopPropagation()
+  // Nota: El console.log lo dejamos igual (es para desarrolladores)
   console.log('Añadido a favoritos:', props.product.nombre)
 }
 </script>
@@ -31,7 +34,13 @@ const toggleWishlist = (e: Event) => {
       />
       <div v-else class="placeholder"></div>
 
-      <button class="wishlist-btn" @click="toggleWishlist">♡</button>
+      <button 
+        class="wishlist-btn" 
+        @click="toggleWishlist" 
+        :title="$t('product.add_to_wishlist')"
+      >
+        ♡
+      </button>
     </div>
 
     <div class="info">

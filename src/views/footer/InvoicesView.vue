@@ -1,31 +1,24 @@
 <template>
   <div class="legal-container">
     <div class="legal-content">
-      <h1 class="text-orange">Facturación</h1>
+      <h1 class="text-orange">{{ $t('invoices.title') }}</h1>
       
       <section>
-        <h2>📥 Descarga de Facturas</h2>
-        <p>
-          Puedes acceder a todas tus facturas desde tu <strong>Área de Cliente</strong>. 
-          Una vez dentro, dirígete a la sección "Mis Pedidos", donde encontrarás el icono de descarga PDF junto a cada compra finalizada.
-        </p>
+        <h2>{{ $t('invoices.download.title') }}</h2>
+        <p v-html="$t('invoices.download.text')"></p>
       </section>
 
       <section>
-        <h2>🏢 Facturas para Empresas</h2>
+        <h2>{{ $t('invoices.business.title') }}</h2>
         <p>
-          Si necesitas una factura completa a nombre de tu empresa o autónomo, asegúrate de rellenar los datos fiscales (CIF/NIF, Razón Social y Dirección Fiscal) 
-          en tu perfil antes de realizar el pedido.
+          {{ $t('invoices.business.text1') }}
         </p>
-        <p>Si olvidaste hacerlo, puedes solicitar la modificación contactando con soporte en los 7 días posteriores a la compra.</p>
+        <p>{{ $t('invoices.business.text2') }}</p>
       </section>
 
       <section>
-        <h2>📊 Impuestos (IVA)</h2>
-        <p>
-          Todos los precios mostrados en nuestra web <strong>incluyen el IVA</strong> vigente en España (21% tipo general). 
-          En el resumen del pedido y en la factura final verás el desglose detallado de la base imponible y la cuota tributaria.
-        </p>
+        <h2>{{ $t('invoices.taxes.title') }}</h2>
+        <p v-html="$t('invoices.taxes.text')"></p>
       </section>
     </div>
   </div>
