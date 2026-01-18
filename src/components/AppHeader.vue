@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue' // Añadido onMounted
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useCartStore } from '@/stores/cart' // <--- 1. Importamos el store del carrito
+import { useCartStore } from '@/stores/cart'
 import { useNotificationStore } from '@/stores/notification'
 import { useI18n } from 'vue-i18n'
 import SearchBar from './SearchBar.vue'
@@ -10,13 +10,13 @@ import BaseModal from './BaseModal.vue'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const cartStore = useCartStore() // <--- 2. Instanciamos el store
+const cartStore = useCartStore()
 const router = useRouter()
 const notificationStore = useNotificationStore()
 
 const showLogoutModal = ref(false)
 
-// 3. Cargar el carrito al montar el componente (si está logueado)
+// Cargar el carrito al montar el componente (si está logueado)
 onMounted(() => {
   if (authStore.isAuthenticated) {
     cartStore.fetchCart()
@@ -174,6 +174,10 @@ const confirmLogout = () => {
       <nav class="nav-bar">
         <ul class="nav-list">
           <li>
+            <RouterLink to="/search">{{ $t('categories.all_products') }}</RouterLink>
+          </li>
+
+          <li>
             <RouterLink to="/category/running">{{ $t('nav.running') }}</RouterLink>
           </li>
           <li>
@@ -191,11 +195,13 @@ const confirmLogout = () => {
           <li>
             <RouterLink to="/category/natacion">{{ $t('nav.swimming') }}</RouterLink>
           </li>
+          
           <li>
-            <a href="#">{{ $t('nav.more_sports') }}</a>
+            <RouterLink to="/category/mas-deportes">{{ $t('nav.more_sports') }}</RouterLink>
           </li>
+          
           <li>
-            <a href="#">{{ $t('nav.nutrition') }}</a>
+            <RouterLink to="/category/nutricion">{{ $t('nav.nutrition') }}</RouterLink>
           </li>
         </ul>
       </nav>

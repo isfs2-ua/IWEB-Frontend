@@ -21,6 +21,18 @@
     "more_sports": "More sports",
     "nutrition": "Nutrition & recovery"
   },
+  "categories": {
+    "running": "Running",
+    "ciclismo": "Cycling",
+    "futbol": "Football",
+    "baloncesto": "Basketball",
+    "tenis": "Tennis",
+    "natacion": "Swimming",
+    "mas-deportes": "More sports",
+    "nutricion": "Nutrition",
+    "otros": "Other Sports",
+    "all_products": "All"
+  },
   "footer": {
     "about": "About Us",
     "who_we_are": "Who we are",

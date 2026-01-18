@@ -1,20 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
-const searchQuery = ref('')
 const router = useRouter()
+const route = useRoute()
+
+const searchQuery = ref((route.query.q as string) || '')
+
+watch(
+  () => route.query.q,
+  (newQuery) => {
+    searchQuery.value = (newQuery as string) || ''
+  }
+)
 
 const handleSearch = () => {
-  // Solo buscamos si hay texto y limpiamos espacios
   if (searchQuery.value.trim()) {
     console.log('Buscando:', searchQuery.value)
 
-    // Navegamos a la vista de resultados
     router.push({ name: 'search', query: { q: searchQuery.value } })
-
-    // Por ahora, solo limpiamos el input para simular la acción
-    searchQuery.value = ''
   }
 }
 </script>
@@ -59,12 +63,12 @@ const handleSearch = () => {
   transition:
     border-color 0.3s,
     box-shadow 0.3s;
-  width: 100%; /* Ocupa el 100% del contenedor padre */
+  width: 100%;
 }
 
 .search-input-wrapper:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1); /* Un brillito naranja sutil */
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
 .search-icon {
