@@ -1,5 +1,10 @@
 # tienda-ropa-iweb
 
+# Cómo arrancar el proyecto con Docker
+Usamos `docker compose up -d --build`. Esto corre el proyecto en modo Daemon y reconstruye la imagen.
+
+# Generado por Vue
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
