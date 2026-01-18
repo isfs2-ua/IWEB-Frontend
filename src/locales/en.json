@@ -41,10 +41,15 @@
     "edit": "Edit",
     "cancel": "Cancel",
     "confirm": "Confirm",
+    "save_success": "Data updated successfully",
     "other": "Other",
     "all": "All",
     "child_male": "Boy",
-    "child_female": "Girl"
+    "child_female": "Girl",
+    "save": "Save"
+  },
+  "errors": {
+    "generic": "An unexpected error occurred"
   },
   "address": {
     "full_name": "Full Name",
@@ -87,6 +92,11 @@
     }
   },
   "profile": {
+    "notifications": {
+      "password_mismatch": "New passwords do not match.",
+      "current_password_required": "Current password is required.",
+      "password_change_error": "Error changing password."
+    },
     "menu": {
       "my_data": "My Profile",
       "my_orders": "My Orders",
@@ -96,6 +106,7 @@
     "data": {
       "title": "My Profile",
       "account_section": "Account Details",
+      "edit_title": "Edit Profile",
       "username": "Username",
       "email": "Email",
       "password": "Password",
@@ -467,7 +478,7 @@
     "title": "Welcome back",
     "subtitle": "Enter your credentials to access your account.",
     "email_label": "Email address",
-    "email_placeholder": "example@email.com",
+    "email_placeholder": "example{'@'}email.com",
     "password_label": "Password",
     "submit_btn": "Login",
     "loading_btn": "Logging in...",

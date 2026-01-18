@@ -41,10 +41,15 @@
     "edit": "Editar",
     "cancel": "Cancelar",
     "confirm": "Confirmar",
+    "save": "Guardar",
+    "save_success": "Datos actualizados correctamente",
     "other": "Otro",
     "all": "Todos",
     "child_male": "Niño",
     "child_female": "Niña"
+  },
+  "errors": {
+    "generic": "Ha ocurrido un error inesperado"
   },
   "address": {
     "full_name": "Nombre Completo",
@@ -87,6 +92,11 @@
     }
   },
   "profile": {
+    "notifications": {
+      "password_mismatch": "Las nuevas contraseñas no coinciden.",
+      "current_password_required": "Debes introducir tu contraseña actual.",
+      "password_change_error": "Error al cambiar la contraseña."
+    },
     "menu": {
       "my_data": "Mis Datos",
       "my_orders": "Mis pedidos",
@@ -94,28 +104,29 @@
       "logout": "Cerrar sesión"
     },
     "data": {
-      "title": "My Profile",
-      "account_section": "Account Details",
-      "username": "Username",
+      "title": "Mis Datos",
+      "account_section": "Datos de cuenta",
+      "edit_title": "Editar mis datos",
+      "username": "Nombre de usuario",
       "email": "Email",
-      "password": "Password",
-      "personal_section": "Personal Details",
-      "name": "First Name",
-      "surname": "Last Name",
-      "phone": "Phone",
-      "birthdate": "Date of Birth",
-      "form_section": "Form",
-      "add_new": "Add New",
-      "customize": "Customize your experience:",
-      "gender": "Gender",
+      "password": "Contraseña",
+      "personal_section": "Datos personales",
+      "name": "Nombre",
+      "surname": "Apellidos",
+      "phone": "Teléfono",
+      "birthdate": "Fecha de nacimiento",
+      "form_section": "Formulario",
+      "add_new": "Añadir nuevo",
+      "customize": "Personaliza tu experiencia:",
+      "gender": "Género",
       "gender_options": {
-        "male": "Male",
-        "female": "Female"
+        "male": "Hombre",
+        "female": "Mujer"
       },
-      "size": "Size",
-      "foot_size": "Shoe Size",
-      "interests": "Sports Interests:",
-      "delete_account": "Delete my account"
+      "size": "Talla",
+      "foot_size": "Talla de pie",
+      "interests": "Interés por el deporte:",
+      "delete_account": "Dar de baja mi cuenta"
     },
     "favorites_page": {
       "title": "Favoritos",
@@ -467,7 +478,7 @@
     "title": "Bienvenido de nuevo",
     "subtitle": "Introduce tus credenciales para acceder a tu cuenta.",
     "email_label": "Correo electrónico",
-    "email_placeholder": "ejemplo@email.com",
+    "email_placeholder": "ejemplo{'@'}email.com",
     "password_label": "Contraseña",
     "submit_btn": "Iniciar Sesión",
     "loading_btn": "Entrando...",

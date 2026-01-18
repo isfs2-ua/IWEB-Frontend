@@ -19,13 +19,15 @@ const emit = defineEmits(['close', 'confirm'])
         </div>
 
         <div class="modal-actions">
-          <button class="btn-secondary" @click="$emit('close')">
-            {{ $t('common.cancel') }}
-          </button>
-          
-          <button class="btn-primary" @click="$emit('confirm')">
-            {{ $t('common.confirm') }}
-          </button>
+          <slot name="footer">
+            <button class="btn-secondary" @click="$emit('close')">
+              {{ $t('common.cancel') }}
+            </button>
+            
+            <button class="btn-primary" @click="$emit('confirm')">
+              {{ $t('common.confirm') }}
+            </button>
+          </slot>
         </div>
       </div>
     </div>
