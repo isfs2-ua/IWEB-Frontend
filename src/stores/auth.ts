@@ -98,5 +98,20 @@ export const useAuthStore = defineStore('auth', () => {
     fetchCurrentUser()
   }
 
-  return { user, token, isAuthenticated, login, logout, register, fetchCurrentUser, updateProfile }
+  async function changePassword(currentPassword: string, newPassword: string) {
+    try {
+      await api.put('/usuarios/password', {
+        currentPassword,
+        newPassword
+      })
+      return { success: true }
+    } catch (error: any) {
+      console.error('Error cambiando password:', error)
+      // Devolvemos el mensaje de error del backend si existe
+      const msg = error.response?.data?.message || 'Error al cambiar la contraseña'
+      return { success: false, message: msg }
+    }
+  }
+
+  return { user, token, isAuthenticated, login, logout, register, fetchCurrentUser, updateProfile, changePassword }
 })

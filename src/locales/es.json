@@ -41,11 +41,15 @@
     "edit": "Editar",
     "cancel": "Cancelar",
     "confirm": "Confirmar",
+    "save": "Guardar",
+    "save_success": "Datos actualizados correctamente",
     "other": "Otro",
     "all": "Todos",
     "child_male": "Niño",
-    "child_female": "Niña",
-    "save": "Guardar"
+    "child_female": "Niña"
+  },
+  "errors": {
+    "generic": "Ha ocurrido un error inesperado"
   },
   "address": {
     "full_name": "Nombre Completo",
@@ -88,6 +92,11 @@
     }
   },
   "profile": {
+    "notifications": {
+      "password_mismatch": "Las nuevas contraseñas no coinciden.",
+      "current_password_required": "Debes introducir tu contraseña actual.",
+      "password_change_error": "Error al cambiar la contraseña."
+    },
     "menu": {
       "my_data": "Mis Datos",
       "my_orders": "Mis pedidos",
@@ -469,7 +478,7 @@
     "title": "Bienvenido de nuevo",
     "subtitle": "Introduce tus credenciales para acceder a tu cuenta.",
     "email_label": "Correo electrónico",
-    "email_placeholder": "ejemplo@email.com",
+    "email_placeholder": "ejemplo{'@'}email.com",
     "password_label": "Contraseña",
     "submit_btn": "Iniciar Sesión",
     "loading_btn": "Entrando...",

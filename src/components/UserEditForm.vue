@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 
-// Definimos las props tipadas
 const props = defineProps<{
+  mode: 'account' | 'personal',
   modelValue: {
     username: string
     email: string
@@ -10,73 +10,96 @@ const props = defineProps<{
     apellidos: string
     telefono: string
     fechaNacimiento: string
+    currentPassword?: string
+    newPassword?: string
+    confirmPassword?: string
   }
 }>()
 
-// Definimos el evento para comunicarnos con el padre
 const emit = defineEmits(['update:modelValue'])
 
-// 1. CREAR COPIA LOCAL:
-// Inicializamos 'form' clonando los datos que recibimos.
-// Esto permite que el usuario edite sin restricciones.
-const form = ref({ ...props.modelValue })
-
-// 2. DETECTAR CAMBIOS EXTERNOS (Padre -> Hijo):
-// Si abres el modal de nuevo, actualizamos el formulario.
-watch(() => props.modelValue, (newValue) => {
-  // Solo actualizamos si son objetos diferentes para evitar bucles
-  if (JSON.stringify(newValue) !== JSON.stringify(form.value)) {
-    form.value = { ...newValue }
-  }
-}, { deep: true })
-
-// 3. ENVIAR CAMBIOS (Hijo -> Padre):
-// Cada vez que escribes una letra, avisamos al padre (ProfileDataView)
-// para que su variable 'editData' se actualice en tiempo real.
-watch(form, (newValue) => {
-  emit('update:modelValue', { ...newValue })
-}, { deep: true })
+const form = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+})
 </script>
 
 <template>
   <form class="user-form-grid" @submit.prevent>
-    <div class="form-group full-width">
-      <label>{{ $t('profile.data.username') }}</label>
-      <input type="text" v-model="form.username" required />
-    </div>
+    
+    <template v-if="mode === 'account'">
+      <div class="form-group full-width">
+        <label>{{ $t('profile.data.username') }}</label>
+        <input type="text" v-model="form.username" required />
+      </div>
 
-    <div class="form-group full-width">
-      <label>{{ $t('profile.data.email') }}</label>
-      <input type="email" v-model="form.email" required />
-    </div>
+      <div class="form-group full-width">
+        <label>{{ $t('profile.data.email') }}</label>
+        <input type="email" v-model="form.email" required />
+      </div>
 
-    <div class="form-group">
-      <label>{{ $t('profile.data.name') }}</label>
-      <input type="text" v-model="form.nombre" required />
-    </div>
+      <div class="full-width separator-title">
+         <span>Cambiar contraseña</span>
+      </div>
 
-    <div class="form-group">
-      <label>{{ $t('profile.data.surname') }}</label>
-      <input type="text" v-model="form.apellidos" required />
-    </div>
+      <div class="form-group full-width">
+        <label>Contraseña Actual</label>
+        <input 
+            type="password" 
+            v-model="form.currentPassword" 
+            placeholder="Contraseña actual" 
+        />
+      </div>
 
-    <div class="form-group">
-      <label>{{ $t('profile.data.phone') }}</label>
-      <input type="tel" v-model="form.telefono" />
-    </div>
+      <div class="form-group full-width">
+        <label>Nueva Contraseña</label>
+        <input 
+            type="password" 
+            v-model="form.newPassword" 
+            placeholder="Nueva contraseña" 
+        />
+      </div>
 
-    <div class="form-group full-width">
-      <label>{{ $t('profile.data.birthdate') }}</label>
-      <input type="date" v-model="form.fechaNacimiento" />
-    </div>
+      <div class="form-group full-width">
+        <label>Repetir Nueva</label>
+        <input 
+            type="password" 
+            v-model="form.confirmPassword" 
+            placeholder="Repite nueva contraseña" 
+        />
+      </div>
+    </template>
+
+
+    <template v-if="mode === 'personal'">
+      <div class="form-group full-width">
+        <label>{{ $t('profile.data.name') }}</label>
+        <input type="text" v-model="form.nombre" required />
+      </div>
+
+      <div class="form-group full-width">
+        <label>{{ $t('profile.data.surname') }}</label>
+        <input type="text" v-model="form.apellidos" required />
+      </div>
+
+      <div class="form-group">
+        <label>{{ $t('profile.data.phone') }}</label>
+        <input type="tel" v-model="form.telefono" />
+      </div>
+
+      <div class="form-group">
+        <label>{{ $t('profile.data.birthdate') }}</label>
+        <input type="date" v-model="form.fechaNacimiento" />
+      </div>
+    </template>
+
   </form>
 </template>
 
 <style scoped>
-/* Tus estilos (Grid de 2 columnas) */
 .user-form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 15px;
   padding: 10px 0;
   text-align: left;
@@ -89,6 +112,16 @@ watch(form, (newValue) => {
 
 .full-width {
   grid-column: 1 / -1;
+}
+
+.separator-title {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #000; 
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
 }
 
 .form-group label {
@@ -108,8 +141,19 @@ watch(form, (newValue) => {
   box-sizing: border-box;
 }
 
+.form-group input::placeholder {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
 .form-group input:focus {
   border-color: var(--color-primary);
   outline: none;
+}
+
+@media (max-width: 600px) {
+  .user-form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
