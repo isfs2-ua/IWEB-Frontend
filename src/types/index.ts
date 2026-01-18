@@ -11,10 +11,13 @@ export interface ProductVariant {
   id: number
   producto_id: number
   sku: string
-  atributo1: string // Ej: Color
-  atributo2: string // Ej: Talla
+  atributo1: string // Color (según tu backend puede ser 'color')
+  atributo2: string // Talla (según tu backend puede ser 'talla')
   precio: number
-  cantidad_stock: number
+  cantidadStock: number
+  talla: string
+  color: string
+  activa: boolean
 }
 
 export interface Category {
@@ -37,7 +40,7 @@ export interface Product {
   id: number
   nombre: string
   referencia: number
-  descripcionCorta: string 
+  descripcionCorta: string
   descripcionLarga: string
   marca: string
   precio: number
@@ -54,15 +57,6 @@ export interface Product {
   composicion?: string
   reviews?: Review[]
   otros_colores_img?: string[] // URLs de las fotitos de otros colores
-}
-
-export interface CartItem {
-  id: number
-  usuario_id: number
-  producto_id: number
-  cantidad: number
-  // En el frontend solemos necesitar datos del producto para mostrarlo (nombre, img) así que extendemos un poco la interfaz base de la BD.
-  producto?: Product
 }
 
 export interface UserPreferences {
@@ -131,4 +125,5 @@ export interface CartItem {
   imagen: string
   cantidad: number
   talla?: string // Opcional, por si es talla única
+  color?: string
 }

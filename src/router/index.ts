@@ -5,6 +5,7 @@ import RegisterView from '../views/RegisterView.vue'
 import SearchView from '../views/SearchView.vue'
 import ProductDetailView from '../views/ProductDetailView.vue'
 import ProfileDataView from '@/views/profile/ProfileDataView.vue'
+import CheckoutCallbackView from '../views/CheckoutCallbackView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,7 +17,7 @@ const router = createRouter({
       return { top: 0 }
     }
   },
-  
+
   routes: [
     {
       path: '/',
@@ -81,6 +82,11 @@ const router = createRouter({
       // No ponemos 'requiresAuth' porque el propio componente maneja el caso de usuario no logueado en el Paso 1
     },
     {
+      path: '/checkout/callback',
+      name: 'checkout-callback',
+      component: CheckoutCallbackView,
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/admin/AdminView.vue'),
@@ -89,48 +95,48 @@ const router = createRouter({
     {
       path: '/legal-advice',
       name: 'legal',
-      component: () => import('../views/footer/LegalView.vue')
+      component: () => import('../views/footer/LegalView.vue'),
     },
     {
       path: '/privacy',
       name: 'privacy',
-      component: () => import('../views/footer/PrivacyView.vue')
+      component: () => import('../views/footer/PrivacyView.vue'),
     },
     {
       path: '/returns',
       name: 'returns',
-      component: () => import('../views/footer/ReturnsView.vue')
+      component: () => import('../views/footer/ReturnsView.vue'),
     },
     {
       path: '/cookies',
       name: 'cookies',
-      component: () => import('../views/footer/CookiesView.vue')
+      component: () => import('../views/footer/CookiesView.vue'),
     },
     {
       path: '/about',
       name: 'about',
-      component: () => import('../views/footer/AboutView.vue')
+      component: () => import('../views/footer/AboutView.vue'),
     },
     {
       path: '/stores',
       name: 'stores',
-      component: () => import('../views/footer/StoresView.vue')
+      component: () => import('../views/footer/StoresView.vue'),
     },
     {
       path: '/secure-purchase',
       name: 'secure-purchase',
-      component: () => import('../views/footer/SecurePucharseView.vue')
+      component: () => import('../views/footer/SecurePucharseView.vue'),
     },
     {
       path: '/help',
       name: 'help',
-      component: () => import('../views/footer/HelpView.vue')
+      component: () => import('../views/footer/HelpView.vue'),
     },
     {
       path: '/invoices',
       name: 'invoices',
-      component: () => import('../views/footer/InvoicesView.vue')
-    }
+      component: () => import('../views/footer/InvoicesView.vue'),
+    },
   ],
 })
 

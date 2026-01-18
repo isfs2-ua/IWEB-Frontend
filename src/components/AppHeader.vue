@@ -1,26 +1,33 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router' // Importamos useRouter
-import { useAuthStore } from '@/stores/auth' // Importamos el store
-import SearchBar from './SearchBar.vue' // Barra de búsqueda
-import BaseModal from './BaseModal.vue' // Modal de confirmación para logout
-import { useNotificationStore } from '@/stores/notification' // Notificaciones
+import { ref, onMounted } from 'vue' // Añadido onMounted
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useCartStore } from '@/stores/cart' // <--- 1. Importamos el store del carrito
+import { useNotificationStore } from '@/stores/notification'
 import { useI18n } from 'vue-i18n'
+import SearchBar from './SearchBar.vue'
+import BaseModal from './BaseModal.vue'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
+const cartStore = useCartStore() // <--- 2. Instanciamos el store
 const router = useRouter()
-const cartCount = ref(3)
-const showLogoutModal = ref(false)
 const notificationStore = useNotificationStore()
+
+const showLogoutModal = ref(false)
+
+// 3. Cargar el carrito al montar el componente (si está logueado)
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    cartStore.fetchCart()
+  }
+})
 
 // Lógica del botón de usuario
 const handleUserClick = () => {
   if (authStore.isAuthenticated) {
-    // Si ya está logueado, vamos a su perfil
     router.push('/profile')
   } else {
-    // Si NO está logueado, vamos al login
     router.push('/login')
   }
 }
@@ -32,11 +39,9 @@ const handleLogoutClick = () => {
 
 const confirmLogout = () => {
   authStore.logout()
-  showLogoutModal.value = false // Cerramos modal
-
-  // Feedback bonito al usuario
+  cartStore.clearCart() // Opcional: limpiar carrito visual al salir
+  showLogoutModal.value = false
   notificationStore.showNotification(t('header.logout_success'), 'info')
-
   router.push('/')
 }
 </script>
@@ -72,7 +77,9 @@ const confirmLogout = () => {
               viewBox="0 0 24 24"
               fill="currentColor"
             >
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              <path
+                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+              />
             </svg>
             <svg
               v-else
@@ -97,40 +104,99 @@ const confirmLogout = () => {
             @click="handleLogoutClick"
             :title="$t('header.logout')"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
           </button>
 
-          <button class="icon-btn" :title="$t('header.favorites')" @click="router.push('/profile/favorites')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          <button
+            class="icon-btn"
+            :title="$t('header.favorites')"
+            @click="router.push('/profile/favorites')"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              ></path>
             </svg>
           </button>
 
-          <button class="icon-btn cart-btn" :title="$t('header.cart')" @click="router.push('/cart')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button
+            class="icon-btn cart-btn"
+            :title="$t('header.cart')"
+            @click="router.push('/cart')"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <circle cx="9" cy="21" r="1"></circle>
               <circle cx="20" cy="21" r="1"></circle>
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
-            <span v-if="cartCount > 0" class="badge">{{ cartCount }}</span>
+
+            <span v-if="cartStore.totalItems > 0" class="badge">
+              {{ cartStore.totalItems }}
+            </span>
           </button>
         </div>
       </div>
 
       <nav class="nav-bar">
         <ul class="nav-list">
-          <li><RouterLink to="/category/running">{{ $t('nav.running') }}</RouterLink></li>
-          <li><RouterLink to="/category/ciclismo">{{ $t('nav.cycling') }}</RouterLink></li>
-          <li><RouterLink to="/category/futbol">{{ $t('nav.football') }}</RouterLink></li>
-          <li><RouterLink to="/category/baloncesto">{{ $t('nav.basketball') }}</RouterLink></li>
-          <li><RouterLink to="/category/tenis">{{ $t('nav.tennis') }}</RouterLink></li>
-          <li><RouterLink to="/category/natacion">{{ $t('nav.swimming') }}</RouterLink></li>
-          <li><a href="#">{{ $t('nav.more_sports') }}</a></li>
-          <li><a href="#">{{ $t('nav.nutrition') }}</a></li>
+          <li>
+            <RouterLink to="/category/running">{{ $t('nav.running') }}</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/category/ciclismo">{{ $t('nav.cycling') }}</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/category/futbol">{{ $t('nav.football') }}</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/category/baloncesto">{{ $t('nav.basketball') }}</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/category/tenis">{{ $t('nav.tennis') }}</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/category/natacion">{{ $t('nav.swimming') }}</RouterLink>
+          </li>
+          <li>
+            <a href="#">{{ $t('nav.more_sports') }}</a>
+          </li>
+          <li>
+            <a href="#">{{ $t('nav.nutrition') }}</a>
+          </li>
         </ul>
       </nav>
     </div>
@@ -147,11 +213,14 @@ const confirmLogout = () => {
 </template>
 
 <style scoped>
-/* Estilos anteriores se mantienen igual... */
+/* Tus estilos originales intactos */
 .header {
   background: white;
   padding-top: 15px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky; /* Opcional: para que se quede fijo al scrollear */
+  top: 0;
+  z-index: 1000;
 }
 .container {
   max-width: 1200px;
@@ -222,10 +291,9 @@ const confirmLogout = () => {
   color: var(--color-primary);
 }
 
-/* CLASE NUEVA: Icono activo en Naranja */
 .user-icon-active {
-  color: var(--color-primary); /* Se pinta de naranja */
-  stroke-width: 2.5px; /* Un poco más gordito como en tu imagen */
+  color: var(--color-primary);
+  stroke-width: 2.5px;
 }
 
 .cart-btn {

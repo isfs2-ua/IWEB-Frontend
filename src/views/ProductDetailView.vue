@@ -1,48 +1,66 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/products'
 import { useNotificationStore } from '@/stores/notification'
-import type { Product } from '@/types'
+import { useCartStore } from '@/stores/cart'
+import { useAuthStore } from '@/stores/auth'
+import type { Product, ProductVariant } from '@/types'
 
 const route = useRoute()
 const productStore = useProductStore()
 const notificationStore = useNotificationStore()
+const cartStore = useCartStore()
+const authStore = useAuthStore()
 
 const product = ref<Product | undefined>(undefined)
-const loading = ref(true) // Nuevo estado de carga explícito
+const loading = ref(true)
 const selectedImage = ref('')
+
+// Estados de selección
+const selectedColor = ref('')
 const selectedSize = ref('')
+
+// Listas computadas
+const uniqueColors = ref<string[]>([])
+
 const quantity = ref(1)
 const showDetails = ref(true)
 const showReviews = ref(true)
 
+// --- HELPER STOCK SEGURO ---
+const getVariantStock = (v: ProductVariant | any): number => {
+  if (!v) return 0
+  return v.cantidadStock ?? v.cantidad_stock ?? v.stock ?? 0
+}
+
+// --- CARGA DE PRODUCTO ---
 const loadProduct = () => {
   loading.value = true
   const id = Number(route.params.id)
-
-  console.log(`🔎 Buscando producto con ID: ${id}`) // DEBUG
-
-  // Buscamos en el store
   const foundProduct = productStore.getProductById(id)
 
   if (foundProduct) {
-    console.log('✅ Producto encontrado:', foundProduct.nombre)
     product.value = foundProduct
-    // Inicializar imagen principal si existe
-    if (product.value.variantes && product.value.variantes.length > 0) {
-      const tallasUnicas = [...new Set(product.value.variantes.map(v => v.talla).filter(t => t))]
-      product.value.tallas = tallasUnicas
+
+    // 1. Extraer Colores Únicos
+    if (product.value.variantes) {
+      const colorsMap = product.value.variantes
+        .map((v: any) => v.color) // 'as any' para asegurar que leemos la propiedad aunque falte en la interfaz
+        .filter((c: string) => c)
+
+      uniqueColors.value = [...new Set(colorsMap)]
     }
 
+    // Resetear selecciones
+    selectedColor.value = ''
+    selectedSize.value = ''
+
+    // Imagen Principal
     if (product.value.media && product.value.media.length > 0) {
       selectedImage.value = product.value.media[0].url
     }
   } else {
-    console.error(
-      '❌ Producto NO encontrado en el store. IDs disponibles:',
-      productStore.allProducts.map((p) => p.id),
-    )
     product.value = undefined
   }
   loading.value = false
@@ -51,15 +69,125 @@ const loadProduct = () => {
 onMounted(loadProduct)
 watch(() => route.params.id, loadProduct)
 
-// Acciones
-const addToCart = () => {
-  if (!selectedSize.value) {
-    notificationStore.showNotification('Por favor, selecciona una talla.', 'error')
+// --- COMPUTADOS ---
+
+const availableSizes = computed(() => {
+  if (!product.value?.variantes) return []
+
+  let variants = product.value.variantes
+
+  // Filtrar por color si hay colores y se ha seleccionado uno
+  if (uniqueColors.value.length > 0 && selectedColor.value) {
+    variants = variants.filter((v: any) => v.color === selectedColor.value)
+  }
+
+  const sizes = variants.map((v) => v.talla || 'Talla Única')
+  return [...new Set(sizes)]
+})
+
+// --- WATCHERS PARA AUTO-SELECCIÓN ---
+
+// 1. Auto-seleccionar Color si solo hay uno
+watch(
+  () => uniqueColors.value,
+  (colors) => {
+    if (colors.length === 1) {
+      selectedColor.value = colors[0]
+    }
+  },
+  { immediate: true },
+)
+
+// 2. Auto-seleccionar Talla si solo hay una opción disponible
+watch(
+  availableSizes,
+  (sizes) => {
+    if (sizes.length === 1) {
+      selectedSize.value = sizes[0]
+    }
+  },
+  { immediate: true },
+)
+
+// 3. Resetear talla si cambia el color (y hay más de una talla)
+watch(selectedColor, () => {
+  if (availableSizes.value.length > 1) {
+    selectedSize.value = ''
+  }
+})
+
+// --- CÁLCULO DE STOCK ---
+const currentStock = computed(() => {
+  if (!product.value?.variantes) return 0
+
+  // Si solo hay 1 variante absoluta
+  if (product.value.variantes.length === 1) {
+    return getVariantStock(product.value.variantes[0])
+  }
+
+  // Búsqueda normal
+  const variant = product.value.variantes.find((v: any) => {
+    const nombreTalla = v.talla || 'Talla Única'
+    const matchSize = nombreTalla === selectedSize.value
+
+    const matchColor = uniqueColors.value.length > 0 ? v.color === selectedColor.value : true
+
+    return matchSize && matchColor
+  })
+
+  return getVariantStock(variant)
+})
+
+const isOutOfStock = computed(() => {
+  if (currentStock.value <= 0) return true
+  if (uniqueColors.value.length > 1 && !selectedColor.value) return true
+  if (availableSizes.value.length > 1 && !selectedSize.value) return true
+  return false
+})
+
+// --- ACCIONES ---
+
+const addToCart = async () => {
+  if (!authStore.isAuthenticated) {
+    notificationStore.showNotification('Debes iniciar sesión para comprar', 'info')
     return
   }
 
-  // Aquí llamarías a useCartStore.addItem(...)
-  notificationStore.showNotification('Producto añadido al carrito correctamente', 'success')
+  let variant: ProductVariant | undefined
+
+  if (product.value?.variantes?.length === 1) {
+    variant = product.value.variantes[0]
+  } else {
+    // Validaciones
+    if (uniqueColors.value.length > 0 && !selectedColor.value) {
+      notificationStore.showNotification('Por favor, selecciona un color.', 'error')
+      return
+    }
+    if (availableSizes.value.length > 1 && !selectedSize.value) {
+      notificationStore.showNotification('Por favor, selecciona una talla.', 'error')
+      return
+    }
+
+    variant = product.value?.variantes?.find((v: any) => {
+      const nombreTalla = v.talla || 'Talla Única'
+      const matchSize = nombreTalla === selectedSize.value
+      const matchColor = uniqueColors.value.length > 0 ? v.color === selectedColor.value : true
+      return matchSize && matchColor
+    })
+  }
+
+  if (!variant) {
+    notificationStore.showNotification('Error: Variante no encontrada', 'error')
+    return
+  }
+
+  try {
+    await cartStore.addItem(variant.id, quantity.value)
+    notificationStore.showNotification('¡Producto añadido al carrito!', 'success')
+  } catch (error) {
+    console.error(error)
+    notificationStore.showNotification('No se pudo añadir al carrito.', 'error')
+  }
 }
 
 const toggleWishlist = () => {
@@ -82,7 +210,6 @@ const toggleWishlist = () => {
             <img :src="img.url" :alt="product.nombre" />
           </div>
         </div>
-
         <div class="main-image">
           <img :src="selectedImage" :alt="product.nombre" />
         </div>
@@ -100,45 +227,97 @@ const toggleWishlist = () => {
           <span class="price">{{ product.precio }} €</span>
         </div>
 
-        <div class="color-selection">
-          <p class="label">Otros colores</p>
+        <div class="color-selection" v-if="product.otros_colores_img?.length">
+          <p class="label">Otros modelos disponibles</p>
           <div class="color-thumbs">
             <div class="color-thumb active">
-              <img :src="product.media?.[0].url" alt="Color actual" />
+              <img :src="product.media?.[0].url" alt="Modelo actual" />
             </div>
             <div
               v-for="(imgUrl, index) in product.otros_colores_img"
               :key="index"
               class="color-thumb"
             >
-              <img :src="imgUrl" alt="Otro color" />
+              <img :src="imgUrl" alt="Otro modelo" />
             </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <select v-model="selectedSize" class="size-select">
-            <option value="" disabled selected>Selecciona una talla</option>
-            <option v-for="talla in product.tallas" :key="talla" :value="talla">
+        <div class="form-group" v-if="uniqueColors.length > 1">
+          <label class="label">Color:</label>
+          <select v-model="selectedColor" class="size-select">
+            <option value="" disabled>Selecciona un color</option>
+            <option v-for="color in uniqueColors" :key="color" :value="color">
+              {{ color }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group" v-else-if="uniqueColors.length === 1">
+          <label class="label">Color:</label>
+          <span class="static-size-text">{{ uniqueColors[0] }}</span>
+        </div>
+
+        <div class="form-group" v-if="availableSizes.length > 1">
+          <label class="label">Talla:</label>
+          <select
+            v-model="selectedSize"
+            class="size-select"
+            :disabled="uniqueColors.length > 0 && !selectedColor"
+          >
+            <option value="" disabled>
+              {{
+                uniqueColors.length > 0 && !selectedColor
+                  ? 'Primero elige color'
+                  : 'Selecciona una talla'
+              }}
+            </option>
+            <option v-for="talla in availableSizes" :key="talla" :value="talla">
               {{ talla }}
             </option>
           </select>
         </div>
 
+        <div
+          class="form-group"
+          v-else-if="availableSizes.length === 1 && availableSizes[0] !== 'Talla Única'"
+        >
+          <label class="label">Talla:</label>
+          <span class="static-size-text">{{ availableSizes[0] }}</span>
+        </div>
+
         <div class="purchase-row">
           <div class="quantity-wrapper">
             <label>Cantidad:</label>
-            <input type="number" v-model="quantity" min="1" max="10" />
+            <input
+              type="number"
+              v-model="quantity"
+              min="1"
+              :max="currentStock > 0 ? currentStock : 1"
+            />
           </div>
 
           <div class="stock-status">
-            <span v-if="product.stock && product.stock > 0" class="in-stock">En stock</span>
-            <span v-else class="out-stock">No disponible</span>
+            <span v-if="uniqueColors.length > 1 && !selectedColor" class="text-gray"
+              >Elige color</span
+            >
+            <span v-else-if="availableSizes.length > 1 && !selectedSize" class="text-gray"
+              >Elige talla</span
+            >
+            <span v-else-if="currentStock > 5" class="in-stock">En stock</span>
+            <span v-else-if="currentStock <= 5" class="in-low-stock">Quedan pocas unidades</span>
+            <span v-else class="out-stock">Agotado</span>
           </div>
         </div>
 
         <div class="actions-row">
-          <button @click="addToCart" class="btn-add-cart">Añadir al carrito</button>
+          <button
+            @click="addToCart"
+            class="btn-add-cart"
+            :disabled="isOutOfStock"
+            :class="{ disabled: isOutOfStock }"
+          >
+            {{ currentStock <= 0 ? 'Agotado' : 'Añadir al carrito' }}
+          </button>
           <button @click="toggleWishlist" class="btn-wishlist">♡</button>
         </div>
       </div>
@@ -150,17 +329,14 @@ const toggleWishlist = () => {
           <h2>Detalles</h2>
           <span class="chevron" :class="{ rotated: showDetails }">^</span>
         </div>
-
         <div v-show="showDetails" class="accordion-content">
           <p class="description">{{ product.descripcionLarga }}</p>
-
           <div v-if="product.caracteristicas">
             <h4>Características:</h4>
             <ul>
               <li v-for="(car, idx) in product.caracteristicas" :key="idx">{{ car }}</li>
             </ul>
           </div>
-
           <div v-if="product.composicion" class="composition">
             <strong>Composición:</strong> {{ product.composicion }}
           </div>
@@ -172,7 +348,6 @@ const toggleWishlist = () => {
           <h2 class="orange-text">Opiniones ({{ product.reviews?.length || 0 }})</h2>
           <span class="chevron" :class="{ rotated: showReviews }">^</span>
         </div>
-
         <div v-show="showReviews" class="accordion-content">
           <div v-for="review in product.reviews" :key="review.id" class="review-card">
             <div class="review-header">
@@ -195,10 +370,6 @@ const toggleWishlist = () => {
       </div>
     </div>
   </div>
-  <div v-if="!loading && product" class="product-detail-page container">
-    <div class="top-section"></div>
-    <div class="details-accordion"></div>
-  </div>
 
   <div v-else-if="loading" class="container feedback-msg">
     <div class="spinner"></div>
@@ -207,14 +378,12 @@ const toggleWishlist = () => {
 
   <div v-else class="container feedback-msg">
     <h2>⚠️ Producto no encontrado</h2>
-    <p>Parece que el artículo que buscas no existe o ha sido eliminado.</p>
-    <RouterLink to="/" class="btn-primary" style="display: inline-block; margin-top: 20px"
-      >Volver a la tienda</RouterLink
-    >
+    <RouterLink to="/" class="btn-primary" style="margin-top: 20px">Volver a la tienda</RouterLink>
   </div>
 </template>
 
 <style scoped>
+/* ESTILOS (Sin cambios) */
 .feedback-msg {
   text-align: center;
   padding: 100px 20px;
@@ -243,8 +412,6 @@ const toggleWishlist = () => {
   margin: 0 auto;
   padding: 40px 20px;
 }
-
-/* --- TOP SECTION --- */
 .top-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -256,28 +423,22 @@ const toggleWishlist = () => {
 .gallery-container {
   display: flex;
   gap: 20px;
-  height: 500px; /* Altura fija para mantener proporción */
+  height: 500px;
 }
-
 .thumbnails {
   display: flex;
   flex-direction: column;
   gap: 15px;
   width: 80px;
   overflow-y: auto;
-
-  scrollbar-width: none; /* Para Firefox */
-  -ms-overflow-style: none; /* Para IE y Edge */
+  scrollbar-width: none;
 }
-
-/* Para Chrome, Safari y Opera */
 .thumbnails::-webkit-scrollbar {
   display: none;
 }
-
 .thumb-wrapper {
   width: 80px;
-  height: 100px; /* Rectangular vertical */
+  height: 100px;
   border: 1px solid #ddd;
   cursor: pointer;
   opacity: 0.6;
@@ -292,7 +453,6 @@ const toggleWishlist = () => {
   height: 100%;
   object-fit: cover;
 }
-
 .main-image {
   flex: 1;
   background: #f4f4f4;
@@ -308,14 +468,13 @@ const toggleWishlist = () => {
   object-fit: cover;
 }
 
-/* Info Derecha */
+/* Info */
 .product-title {
   font-size: 1.5rem;
   margin-top: 0;
   margin-bottom: 10px;
   font-weight: 700;
 }
-
 .rating-stars {
   color: #f39c12;
   margin-bottom: 15px;
@@ -326,7 +485,6 @@ const toggleWishlist = () => {
   font-size: 0.9rem;
   margin-left: 5px;
 }
-
 .price {
   font-size: 1.8rem;
   font-weight: 800;
@@ -335,14 +493,14 @@ const toggleWishlist = () => {
   margin-bottom: 20px;
 }
 
-/* Colores */
 .color-selection {
   margin-bottom: 20px;
 }
-.color-selection .label {
+.label {
   font-size: 0.85rem;
   color: #666;
   margin-bottom: 8px;
+  display: block;
 }
 .color-thumbs {
   display: flex;
@@ -363,7 +521,6 @@ const toggleWishlist = () => {
   border: 2px solid var(--color-primary);
 }
 
-/* Formulario */
 .form-group {
   margin-bottom: 20px;
 }
@@ -373,8 +530,12 @@ const toggleWishlist = () => {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
-  color: #555;
   background: white;
+}
+.static-size-text {
+  font-weight: bold;
+  color: #333;
+  font-size: 1.1rem;
 }
 
 .purchase-row {
@@ -403,12 +564,21 @@ const toggleWishlist = () => {
   color: #27ae60;
   font-weight: bold;
 }
+
+.in-low-stock {
+  color: #f78c28;
+  font-weight: bold;
+}
+
 .out-stock {
   color: #c0392b;
   font-weight: bold;
 }
+.text-gray {
+  color: #888;
+  font-style: italic;
+}
 
-/* Botones Acción */
 .actions-row {
   display: flex;
   gap: 10px;
@@ -428,6 +598,10 @@ const toggleWishlist = () => {
 .btn-add-cart:hover {
   background: #e65100;
 }
+.btn-add-cart.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
 
 .btn-wishlist {
   width: 50px;
@@ -442,15 +616,13 @@ const toggleWishlist = () => {
   justify-content: center;
 }
 
-/* --- ACCORDIONS --- */
+/* Acordeón */
 .details-accordion {
   border-top: 2px solid var(--color-primary);
 }
-
 .accordion-item {
   border-bottom: 1px solid #eee;
 }
-
 .accordion-header {
   display: flex;
   justify-content: space-between;
@@ -471,7 +643,6 @@ const toggleWishlist = () => {
 .chevron.rotated {
   transform: rotate(180deg);
 }
-
 .accordion-content {
   padding-bottom: 20px;
   color: #444;
@@ -481,17 +652,11 @@ const toggleWishlist = () => {
   margin-bottom: 15px;
   padding-left: 20px;
 }
-.accordion-content li {
-  margin-bottom: 5px;
-}
 
 /* Reviews */
 .review-card {
   border-bottom: 1px solid #f9f9f9;
   padding: 15px 0;
-}
-.review-card:last-child {
-  border-bottom: none;
 }
 .review-header {
   display: flex;
@@ -507,7 +672,6 @@ const toggleWishlist = () => {
 }
 .review-title {
   font-weight: bold;
-  color: #000;
 }
 .review-date {
   margin-left: auto;
@@ -519,11 +683,7 @@ const toggleWishlist = () => {
   color: #666;
   margin-bottom: 5px;
 }
-.review-text {
-  font-size: 0.95rem;
-}
 
-/* Responsive */
 @media (max-width: 768px) {
   .top-section {
     grid-template-columns: 1fr;
