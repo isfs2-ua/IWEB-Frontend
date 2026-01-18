@@ -1,9 +1,7 @@
 # tienda-ropa-iweb
 
-# Cómo generar la imagen de Docker
-Basta con ejecutar  `docker build -t tienda-ropa-iweb` en la carpeta raíz del proyecto.
-
-Una vez generada la imagen, podemos ponerla en un compose, o correr un contenedor con el comando `docker run -d -p 80:80 --add-host=host.docker.internal:host-gateway --name mi-tienda tienda-ropa-iweb`. Hay que tener en cuenta que este comando SÓLO EJECUTA EL FRONTEND. Hará falta tener también el MySQL + Backend.
+# Cómo arrancar el proyecto con Docker
+Usamos `docker compose up -d --build`. Esto corre el proyecto en modo Daemon y reconstruye la imagen.
 
 # Generado por Vue
 
