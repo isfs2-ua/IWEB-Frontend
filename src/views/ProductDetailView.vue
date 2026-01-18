@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/products'
 import { useNotificationStore } from '@/stores/notification'
@@ -31,7 +31,9 @@ const loadProduct = () => {
     product.value = foundProduct
     // Inicializar imagen principal si existe
     if (product.value.variantes && product.value.variantes.length > 0) {
-      const tallasUnicas = [...new Set(product.value.variantes.map(v => v.talla).filter(t => t))]
+      const tallasUnicas = [
+        ...new Set(product.value.variantes.map((v) => v.talla).filter((t) => t)),
+      ]
       product.value.tallas = tallasUnicas
     }
 
@@ -65,10 +67,30 @@ const addToCart = () => {
 const toggleWishlist = () => {
   notificationStore.showNotification('Añadido a lista de deseos', 'info')
 }
+
+const currentStock = computed(() => {
+  if (!product.value || !product.value.variantes) return 0
+
+  // Buscamos la variante exacta por talla
+  const variant = product.value.variantes.find((v) => v.talla === selectedSize.value)
+
+  // Usamos el nombre correcto del campo: cantidadStock
+  return variant ? variant.cantidadStock : 0
+})
+
+const isOutOfStock = computed(() => {
+  if (!selectedSize.value) return true
+  return currentStock.value <= 0
+})
 </script>
 
 <template>
-  <div v-if="product" class="product-detail-page container">
+  <div v-if="loading" class="container feedback-msg">
+    <div class="spinner"></div>
+    <p>Cargando producto...</p>
+  </div>
+
+  <div v-else-if="product" class="product-detail-page container">
     <div class="top-section">
       <div class="gallery-container">
         <div class="thumbnails">
@@ -82,7 +104,6 @@ const toggleWishlist = () => {
             <img :src="img.url" :alt="product.nombre" />
           </div>
         </div>
-
         <div class="main-image">
           <img :src="selectedImage" :alt="product.nombre" />
         </div>
@@ -100,7 +121,7 @@ const toggleWishlist = () => {
           <span class="price">{{ product.precio }} €</span>
         </div>
 
-        <div class="color-selection">
+        <div class="color-selection" v-if="product.otros_colores_img?.length">
           <p class="label">Otros colores</p>
           <div class="color-thumbs">
             <div class="color-thumb active">
@@ -116,29 +137,60 @@ const toggleWishlist = () => {
           </div>
         </div>
 
-        <div class="form-group">
-          <select v-model="selectedSize" class="size-select">
-            <option value="" disabled selected>Selecciona una talla</option>
-            <option v-for="talla in product.tallas" :key="talla" :value="talla">
-              {{ talla }}
-            </option>
-          </select>
+        <div class="selection-section" style="margin-top: 20px">
+          <p class="label">Selecciona tu talla:</p>
+
+          <div class="sizes-grid">
+            <button
+              v-for="variant in product.variantes"
+              :key="variant.id"
+              @click="selectedSize = variant.talla"
+              class="size-btn"
+              :class="{
+                active: selectedSize === variant.talla,
+                disabled: variant.cantidadStock === 0,
+              }"
+              :disabled="variant.cantidadStock === 0"
+            >
+              {{ variant.talla }}
+              <span v-if="variant.cantidadStock === 0" class="out-of-stock-label">(Agotado)</span>
+            </button>
+          </div>
+
+          <div class="stock-messages" style="margin-top: 10px; min-height: 24px">
+            <span v-if="!selectedSize" style="color: #666"
+              >Selecciona una talla para ver disponibilidad</span
+            >
+            <span v-else-if="currentStock === 0" class="out-stock">❌ Agotado</span>
+            <span v-else-if="currentStock < 5" class="stock-warning"
+              >⚠️ ¡Quedan {{ currentStock }}!</span
+            >
+            <span v-else class="in-stock">✅ En stock</span>
+          </div>
         </div>
 
         <div class="purchase-row">
-          <div class="quantity-wrapper">
+          <div class="quantity-wrapper" style="margin-top: 15px">
             <label>Cantidad:</label>
-            <input type="number" v-model="quantity" min="1" max="10" />
-          </div>
-
-          <div class="stock-status">
-            <span v-if="product.stock && product.stock > 0" class="in-stock">En stock</span>
-            <span v-else class="out-stock">No disponible</span>
+            <input
+              type="number"
+              v-model="quantity"
+              min="1"
+              :max="currentStock"
+              :disabled="isOutOfStock"
+            />
           </div>
         </div>
 
         <div class="actions-row">
-          <button @click="addToCart" class="btn-add-cart">Añadir al carrito</button>
+          <button
+            @click="addToCart"
+            class="btn-add-cart"
+            :disabled="isOutOfStock"
+            :class="{ disabled: isOutOfStock }"
+          >
+            {{ currentStock === 0 && selectedSize ? 'Agotado' : 'Añadir al carrito' }}
+          </button>
           <button @click="toggleWishlist" class="btn-wishlist">♡</button>
         </div>
       </div>
@@ -194,15 +246,6 @@ const toggleWishlist = () => {
         </div>
       </div>
     </div>
-  </div>
-  <div v-if="!loading && product" class="product-detail-page container">
-    <div class="top-section"></div>
-    <div class="details-accordion"></div>
-  </div>
-
-  <div v-else-if="loading" class="container feedback-msg">
-    <div class="spinner"></div>
-    <p>Cargando producto...</p>
   </div>
 
   <div v-else class="container feedback-msg">
@@ -542,5 +585,41 @@ const toggleWishlist = () => {
     width: 70px;
     height: 70px;
   }
+}
+
+.sizes-grid {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.sizes-grid button {
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.sizes-grid button.active {
+  background: var(--color-primary, #ff6600); /* Tu color naranja */
+  color: white;
+  border-color: var(--color-primary, #ff6600);
+}
+
+.sizes-grid button.disabled {
+  background: #f3f3f3;
+  color: #aaa;
+  cursor: not-allowed;
+  border-color: #eee;
+}
+
+.stock-warning {
+  color: #e67e22;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
 }
 </style>
