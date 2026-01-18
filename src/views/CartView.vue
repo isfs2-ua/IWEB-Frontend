@@ -137,8 +137,13 @@ const goToCheckout = () => {
               </h3>
 
               <div class="specs-row">
+                <div v-if="item.color" class="spec-group">
+                  <span class="spec-label">Color:</span>
+                  <span class="spec-text">{{ item.color }}</span>
+                </div>
+
                 <div class="size-selector-wrapper">
-                  <label>{{ $t('cart.size') }}:</label>
+                  <label class="spec-label">{{ $t('cart.size') || 'Talla' }}:</label>
 
                   <select
                     v-if="getAvailableVariants(item.producto_id).length > 1"
@@ -154,8 +159,7 @@ const goToCheckout = () => {
                       :value="variant.id"
                       :disabled="variant.cantidadStock === 0"
                     >
-                      {{ variant.talla || 'Única' }}
-                      {{ variant.cantidadStock === 0 ? '(Agotado)' : '' }}
+                      {{ variant.talla }} {{ variant.cantidadStock === 0 ? '(Agotado)' : '' }}
                     </option>
                   </select>
 
@@ -369,31 +373,54 @@ const goToCheckout = () => {
   color: var(--color-primary, #ff6600);
 }
 
-/* Selector de Talla */
+/* Especificaciones (Color y Talla) */
 .specs-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Separación entre Color y Talla */
   margin-bottom: 15px;
+  align-items: center;
 }
+
+.spec-group,
 .size-selector-wrapper {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-size: 0.9rem;
   color: #555;
+  background: #fcfcfc;
+  padding: 5px 10px;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
 }
+
+.spec-label {
+  font-weight: 400;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.spec-text {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Ajustes para el select dentro del grupo */
 .size-select-input {
-  padding: 4px 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background: white;
+  padding: 2px 5px;
   font-size: 0.9rem;
+  background-color: white;
+  color: #333;
+  font-weight: 600;
   cursor: pointer;
 }
+
 .size-text-static {
   font-weight: 600;
   color: #333;
-  background: #f0f0f0;
-  padding: 2px 8px;
-  border-radius: 4px;
 }
 
 /* Footer Item */

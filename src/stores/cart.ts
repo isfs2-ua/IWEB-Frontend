@@ -51,6 +51,7 @@ export const useCartStore = defineStore('cart', () => {
           imagen: p.media && p.media.length > 0 ? p.media[0].url : '',
           cantidad: backendItem.cantidad,
           talla: v.talla,
+          color: v.color,
           sku: v.sku,
         } as CartItem
       })

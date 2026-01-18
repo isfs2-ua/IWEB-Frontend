@@ -3,9 +3,9 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/products'
 import { useNotificationStore } from '@/stores/notification'
-import { useCartStore } from '@/stores/cart' // IMPORTANTE: Importar el store del carrito
+import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
-import type { Product } from '@/types'
+import type { Product, ProductVariant } from '@/types'
 
 const route = useRoute()
 const productStore = useProductStore()
@@ -16,36 +16,47 @@ const authStore = useAuthStore()
 const product = ref<Product | undefined>(undefined)
 const loading = ref(true)
 const selectedImage = ref('')
+
+// Estados de selección
+const selectedColor = ref('')
 const selectedSize = ref('')
+
+// Listas computadas
+const uniqueColors = ref<string[]>([])
+
 const quantity = ref(1)
 const showDetails = ref(true)
 const showReviews = ref(true)
 
-// --- LÓGICA DE CARGA ---
+// --- HELPER STOCK SEGURO ---
+const getVariantStock = (v: ProductVariant | any): number => {
+  if (!v) return 0
+  return v.cantidadStock ?? v.cantidad_stock ?? v.stock ?? 0
+}
+
+// --- CARGA DE PRODUCTO ---
 const loadProduct = () => {
   loading.value = true
   const id = Number(route.params.id)
-
   const foundProduct = productStore.getProductById(id)
 
   if (foundProduct) {
     product.value = foundProduct
 
-    // 1. GESTIÓN DE TALLAS (Incluyendo Talla Única)
-    if (product.value.variantes && product.value.variantes.length > 0) {
-      // Mapeamos: si la talla es null/vacía, la llamamos "Talla Única"
-      const tallasMap = product.value.variantes.map((v) => v.talla || 'Talla Única')
-      // Eliminamos duplicados
-      const tallasUnicas = [...new Set(tallasMap)]
-      product.value.tallas = tallasUnicas
+    // 1. Extraer Colores Únicos
+    if (product.value.variantes) {
+      const colorsMap = product.value.variantes
+        .map((v: any) => v.color) // 'as any' para asegurar que leemos la propiedad aunque falte en la interfaz
+        .filter((c: string) => c)
 
-      // AUTO-SELECCIÓN: Si solo hay una opción (ej: Talla Única), la marcamos sola
-      if (tallasUnicas.length === 1) {
-        selectedSize.value = tallasUnicas[0]
-      }
+      uniqueColors.value = [...new Set(colorsMap)]
     }
 
-    // Inicializar imagen
+    // Resetear selecciones
+    selectedColor.value = ''
+    selectedSize.value = ''
+
+    // Imagen Principal
     if (product.value.media && product.value.media.length > 0) {
       selectedImage.value = product.value.media[0].url
     }
@@ -60,62 +71,122 @@ watch(() => route.params.id, loadProduct)
 
 // --- COMPUTADOS ---
 
-// Calcula el stock de la variante seleccionada
-const currentStock = computed(() => {
-  if (!product.value?.variantes || !selectedSize.value) return 0
+const availableSizes = computed(() => {
+  if (!product.value?.variantes) return []
 
-  // Buscamos la variante coincidente (manejando el caso null -> Talla Única)
-  const variant = product.value.variantes.find((v) => {
+  let variants = product.value.variantes
+
+  // Filtrar por color si hay colores y se ha seleccionado uno
+  if (uniqueColors.value.length > 0 && selectedColor.value) {
+    variants = variants.filter((v: any) => v.color === selectedColor.value)
+  }
+
+  const sizes = variants.map((v) => v.talla || 'Talla Única')
+  return [...new Set(sizes)]
+})
+
+// --- WATCHERS PARA AUTO-SELECCIÓN ---
+
+// 1. Auto-seleccionar Color si solo hay uno
+watch(
+  () => uniqueColors.value,
+  (colors) => {
+    if (colors.length === 1) {
+      selectedColor.value = colors[0]
+    }
+  },
+  { immediate: true },
+)
+
+// 2. Auto-seleccionar Talla si solo hay una opción disponible
+watch(
+  availableSizes,
+  (sizes) => {
+    if (sizes.length === 1) {
+      selectedSize.value = sizes[0]
+    }
+  },
+  { immediate: true },
+)
+
+// 3. Resetear talla si cambia el color (y hay más de una talla)
+watch(selectedColor, () => {
+  if (availableSizes.value.length > 1) {
+    selectedSize.value = ''
+  }
+})
+
+// --- CÁLCULO DE STOCK ---
+const currentStock = computed(() => {
+  if (!product.value?.variantes) return 0
+
+  // Si solo hay 1 variante absoluta
+  if (product.value.variantes.length === 1) {
+    return getVariantStock(product.value.variantes[0])
+  }
+
+  // Búsqueda normal
+  const variant = product.value.variantes.find((v: any) => {
     const nombreTalla = v.talla || 'Talla Única'
-    return nombreTalla === selectedSize.value
+    const matchSize = nombreTalla === selectedSize.value
+
+    const matchColor = uniqueColors.value.length > 0 ? v.color === selectedColor.value : true
+
+    return matchSize && matchColor
   })
 
-  // IMPORTANTE: Usamos 'cantidadStock' (o 'cantidad_stock' según llegue del back)
-  // Forzamos el tipo any para evitar error de TypeScript si la interfaz no está actualizada
-  return variant ? ((variant as any).cantidadStock ?? (variant as any).cantidad_stock ?? 0) : 0
+  return getVariantStock(variant)
 })
 
 const isOutOfStock = computed(() => {
-  if (!selectedSize.value) return false
-  return currentStock.value <= 0
+  if (currentStock.value <= 0) return true
+  if (uniqueColors.value.length > 1 && !selectedColor.value) return true
+  if (availableSizes.value.length > 1 && !selectedSize.value) return true
+  return false
 })
 
 // --- ACCIONES ---
 
 const addToCart = async () => {
-  // 1. Verificación de seguridad
   if (!authStore.isAuthenticated) {
     notificationStore.showNotification('Debes iniciar sesión para comprar', 'info')
     return
   }
 
-  // 2. Validación de talla
-  if (!selectedSize.value) {
-    notificationStore.showNotification('Por favor, selecciona una talla.', 'error')
-    return
+  let variant: ProductVariant | undefined
+
+  if (product.value?.variantes?.length === 1) {
+    variant = product.value.variantes[0]
+  } else {
+    // Validaciones
+    if (uniqueColors.value.length > 0 && !selectedColor.value) {
+      notificationStore.showNotification('Por favor, selecciona un color.', 'error')
+      return
+    }
+    if (availableSizes.value.length > 1 && !selectedSize.value) {
+      notificationStore.showNotification('Por favor, selecciona una talla.', 'error')
+      return
+    }
+
+    variant = product.value?.variantes?.find((v: any) => {
+      const nombreTalla = v.talla || 'Talla Única'
+      const matchSize = nombreTalla === selectedSize.value
+      const matchColor = uniqueColors.value.length > 0 ? v.color === selectedColor.value : true
+      return matchSize && matchColor
+    })
   }
 
-  // 3. Buscar la variante real (ID) para enviarla al backend
-  const variant = product.value?.variantes?.find((v) => {
-    const nombreTalla = v.talla || 'Talla Única'
-    return nombreTalla === selectedSize.value
-  })
-
   if (!variant) {
-    notificationStore.showNotification('Error al localizar la variante del producto', 'error')
+    notificationStore.showNotification('Error: Variante no encontrada', 'error')
     return
   }
 
   try {
-    // 4. Llamada al Store
-    // loading.value = true // Opcional: bloquear pantalla
     await cartStore.addItem(variant.id, quantity.value)
     notificationStore.showNotification('¡Producto añadido al carrito!', 'success')
   } catch (error) {
     console.error(error)
-    notificationStore.showNotification('No se pudo añadir al carrito. Revisa el stock.', 'error')
-  } finally {
-    // loading.value = false
+    notificationStore.showNotification('No se pudo añadir al carrito.', 'error')
   }
 }
 
@@ -157,29 +228,61 @@ const toggleWishlist = () => {
         </div>
 
         <div class="color-selection" v-if="product.otros_colores_img?.length">
-          <p class="label">Otros colores</p>
+          <p class="label">Otros modelos disponibles</p>
           <div class="color-thumbs">
             <div class="color-thumb active">
-              <img :src="product.media?.[0].url" alt="Color actual" />
+              <img :src="product.media?.[0].url" alt="Modelo actual" />
             </div>
             <div
               v-for="(imgUrl, index) in product.otros_colores_img"
               :key="index"
               class="color-thumb"
             >
-              <img :src="imgUrl" alt="Otro color" />
+              <img :src="imgUrl" alt="Otro modelo" />
             </div>
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" v-if="uniqueColors.length > 1">
+          <label class="label">Color:</label>
+          <select v-model="selectedColor" class="size-select">
+            <option value="" disabled>Selecciona un color</option>
+            <option v-for="color in uniqueColors" :key="color" :value="color">
+              {{ color }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group" v-else-if="uniqueColors.length === 1">
+          <label class="label">Color:</label>
+          <span class="static-size-text">{{ uniqueColors[0] }}</span>
+        </div>
+
+        <div class="form-group" v-if="availableSizes.length > 1">
           <label class="label">Talla:</label>
-          <select v-model="selectedSize" class="size-select">
-            <option value="" disabled>Selecciona una opción</option>
-            <option v-for="talla in product.tallas" :key="talla" :value="talla">
+          <select
+            v-model="selectedSize"
+            class="size-select"
+            :disabled="uniqueColors.length > 0 && !selectedColor"
+          >
+            <option value="" disabled>
+              {{
+                uniqueColors.length > 0 && !selectedColor
+                  ? 'Primero elige color'
+                  : 'Selecciona una talla'
+              }}
+            </option>
+            <option v-for="talla in availableSizes" :key="talla" :value="talla">
               {{ talla }}
             </option>
           </select>
+        </div>
+
+        <div
+          class="form-group"
+          v-else-if="availableSizes.length === 1 && availableSizes[0] !== 'Talla Única'"
+        >
+          <label class="label">Talla:</label>
+          <span class="static-size-text">{{ availableSizes[0] }}</span>
         </div>
 
         <div class="purchase-row">
@@ -194,10 +297,14 @@ const toggleWishlist = () => {
           </div>
 
           <div class="stock-status">
-            <span v-if="!selectedSize" style="color: #888; font-size: 0.9rem"
-              >Elige talla para ver stock</span
+            <span v-if="uniqueColors.length > 1 && !selectedColor" class="text-gray"
+              >Elige color</span
             >
-            <span v-else-if="currentStock > 0" class="in-stock">En stock</span>
+            <span v-else-if="availableSizes.length > 1 && !selectedSize" class="text-gray"
+              >Elige talla</span
+            >
+            <span v-else-if="currentStock > 5" class="in-stock">En stock</span>
+            <span v-else-if="currentStock <= 5" class="in-low-stock">Quedan pocas unidades</span>
             <span v-else class="out-stock">Agotado</span>
           </div>
         </div>
@@ -206,10 +313,10 @@ const toggleWishlist = () => {
           <button
             @click="addToCart"
             class="btn-add-cart"
-            :disabled="isOutOfStock || !selectedSize"
-            :class="{ disabled: isOutOfStock || !selectedSize }"
+            :disabled="isOutOfStock"
+            :class="{ disabled: isOutOfStock }"
           >
-            {{ isOutOfStock && selectedSize ? 'Agotado' : 'Añadir al carrito' }}
+            {{ currentStock <= 0 ? 'Agotado' : 'Añadir al carrito' }}
           </button>
           <button @click="toggleWishlist" class="btn-wishlist">♡</button>
         </div>
@@ -276,7 +383,7 @@ const toggleWishlist = () => {
 </template>
 
 <style scoped>
-/* ESTILOS PREVIOS */
+/* ESTILOS (Sin cambios) */
 .feedback-msg {
   text-align: center;
   padding: 100px 20px;
@@ -425,6 +532,11 @@ const toggleWishlist = () => {
   font-size: 1rem;
   background: white;
 }
+.static-size-text {
+  font-weight: bold;
+  color: #333;
+  font-size: 1.1rem;
+}
 
 .purchase-row {
   display: flex;
@@ -452,9 +564,19 @@ const toggleWishlist = () => {
   color: #27ae60;
   font-weight: bold;
 }
+
+.in-low-stock {
+  color: #f78c28;
+  font-weight: bold;
+}
+
 .out-stock {
   color: #c0392b;
   font-weight: bold;
+}
+.text-gray {
+  color: #888;
+  font-style: italic;
 }
 
 .actions-row {

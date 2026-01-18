@@ -125,4 +125,5 @@ export interface CartItem {
   imagen: string
   cantidad: number
   talla?: string // Opcional, por si es talla única
+  color?: string
 }
