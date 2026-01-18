@@ -11,6 +11,8 @@ import type { Address } from '@/types'
 import BaseModal from '@/components/BaseModal.vue'
 import AddressForm from '@/components/AddressForm.vue'
 
+const API_URL = 'http://localhost:8080/api'
+
 // Inicializar i18n
 const { t, locale } = useI18n()
 
@@ -38,7 +40,7 @@ const isProcessingPayment = ref(false)
 const formatPrice = (price: number) => {
   return price.toLocaleString(locale.value, {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   })
 }
 
@@ -51,10 +53,30 @@ watch(deliveryMethod, (newMethod) => {
 
 // Datos Mock de Tiendas
 const stores = [
-  { id: 101, nombre: 'Madrid Centro', direccion: 'C/ Gran Vía 55, 28013 Madrid', horario: '10:00 - 21:00' },
-  { id: 102, nombre: 'Valencia Puerto', direccion: 'Av. del Puerto 10, 46021 Valencia', horario: '09:00 - 20:30' },
-  { id: 103, nombre: 'Barcelona Diagonal', direccion: 'Av. Diagonal 200, 08018 Barcelona', horario: '10:00 - 21:00' },
-  { id: 104, nombre: 'Sevilla', direccion: 'C/ Sierpes 12, 41004 Sevilla', horario: '10:00 - 21:00' },
+  {
+    id: 101,
+    nombre: 'Madrid Centro',
+    direccion: 'C/ Gran Vía 55, 28013 Madrid',
+    horario: '10:00 - 21:00',
+  },
+  {
+    id: 102,
+    nombre: 'Valencia Puerto',
+    direccion: 'Av. del Puerto 10, 46021 Valencia',
+    horario: '09:00 - 20:30',
+  },
+  {
+    id: 103,
+    nombre: 'Barcelona Diagonal',
+    direccion: 'Av. Diagonal 200, 08018 Barcelona',
+    horario: '10:00 - 21:00',
+  },
+  {
+    id: 104,
+    nombre: 'Sevilla',
+    direccion: 'C/ Sierpes 12, 41004 Sevilla',
+    horario: '10:00 - 21:00',
+  },
 ]
 
 // --- CÁLCULOS DEL RESUMEN ---
@@ -73,30 +95,71 @@ const canCheckout = computed(() => {
 })
 
 // --- ACCIÓN FINAL ---
-const finalizePurchase = () => {
+const finalizePurchase = async () => {
   if (!canCheckout.value) return
 
-  // Generamos un número de pedido aleatorio
-  const randomRef = Math.floor(Math.random() * 100000000000000).toString()
+  isProcessingPayment.value = true
 
-  // Función interna para cerrar el pedido
-  const finish = () => {
-    cartStore.items = [] // Vaciar carrito
-    orderReference.value = randomRef // Guardar referencia
-    orderCompleted.value = true // <--- ESTO CAMBIA LA PANTALLA
-    window.scrollTo(0, 0) // Subir arriba
-  }
+  try {
+    // 1. Preparar el payload para crear el pedido (POST /api/pedidos)
+    const orderPayload = {
+      // Mapeamos los items al formato que pide PedidoService.java
+      // IMPORTANTE: Tu backend exige "sku". Si tu carrito no lo tiene,
+      // deberás asegurarte de que venga del producto o usar un valor dummy temporal.
+      items: cartStore.items.map((item) => ({
+        sku: item.sku || 'SKU-DUMMY-' + item.id, // Ajusta esto según tu modelo real
+        cantidad: item.cantidad,
+      })),
+      metodoPago: selectedPaymentMethod.value === 'card' ? 'TPVV' : 'EFECTIVO',
+      direccionEnvio: selectedDeliverySummary.value, // La dirección construida
+      envioCoste: shippingCostDisplay.value,
+    }
 
-  if (selectedPaymentMethod.value === 'card') {
-    // 1. Simulación Pasarela
-    isProcessingPayment.value = true
-    setTimeout(() => {
+    // 2. Crear el pedido en el Backend
+    const createResp = await fetch(`${API_URL}/pedidos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authStore.token}`, // Token JWT del usuario
+      },
+      body: JSON.stringify(orderPayload),
+    })
+
+    if (!createResp.ok) throw new Error('Error creando el pedido')
+
+    const pedidoCreado = await createResp.json()
+    const pedidoId = pedidoCreado.id
+
+    // 3. Si es pago con Tarjeta, iniciar flujo TPV
+    if (selectedPaymentMethod.value === 'card') {
+      // Llamar al endpoint de inicio de pago (PagoController)
+      const payResp = await fetch(`${API_URL}/pagar/pedido/${pedidoId}/init`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${authStore.token}`,
+        },
+      })
+
+      if (!payResp.ok) throw new Error('Error iniciando el pago con TPV')
+
+      const payData = await payResp.json()
+
+      // payData es: { paymentUrl: "...", token: "..." }
+
+      // REDIRECCIÓN AL TPV
+      window.location.href = payData.paymentUrl
+    } else {
+      // 4. Si es efectivo/contrareembolso, terminamos aquí
+      cartStore.items = [] // Vaciar carrito
+      orderReference.value = pedidoId.toString() // O el localizador si lo devuelve el back
+      orderCompleted.value = true
       isProcessingPayment.value = false
-      finish()
-    }, 3000)
-  } else if (selectedPaymentMethod.value === 'cash') {
-    // 2. Contrareembolso directo
-    finish()
+      window.scrollTo(0, 0)
+    }
+  } catch (error) {
+    console.error(error)
+    alert('Hubo un error procesando tu pedido. Por favor inténtalo de nuevo.')
+    isProcessingPayment.value = false
   }
 }
 
@@ -129,7 +192,9 @@ const selectedDeliverySummary = computed(() => {
   if (deliveryMethod.value === 'shipping') {
     const addr = authStore.user?.direcciones.find((d) => d.id === selectedAddressId.value)
     // Usamos la traducción para "Envío a Domicilio"
-    return addr ? `${t('checkout.shipping.delivery_options.home')}: ${addr.calle}, ${addr.ciudad}` : ''
+    return addr
+      ? `${t('checkout.shipping.delivery_options.home')}: ${addr.calle}, ${addr.ciudad}`
+      : ''
   } else {
     const store = stores.find((s) => s.id === selectedStoreId.value)
     // Usamos la traducción para "Recogida en Tienda"
@@ -153,7 +218,15 @@ const nextStep = () => {
 const openAddAddress = () => {
   isEditing.value = false
   Object.assign(addressForm, {
-    id: 0, nombreCompleto: '', telefono: '', calle: '', ciudad: '', codigoPostal: '', provincia: '', pais: 'España', esPrincipal: false,
+    id: 0,
+    nombreCompleto: '',
+    telefono: '',
+    calle: '',
+    ciudad: '',
+    codigoPostal: '',
+    provincia: '',
+    pais: 'España',
+    esPrincipal: false,
   })
   showAddressModal.value = true
 }
@@ -164,8 +237,12 @@ const openEditAddress = (addr: Address) => {
 }
 const saveAddress = () => {
   if (
-    !addressForm.nombreCompleto || !addressForm.calle || !addressForm.ciudad ||
-    !addressForm.codigoPostal || !addressForm.provincia || !addressForm.telefono
+    !addressForm.nombreCompleto ||
+    !addressForm.calle ||
+    !addressForm.ciudad ||
+    !addressForm.codigoPostal ||
+    !addressForm.provincia ||
+    !addressForm.telefono
   ) {
     // ALERTA TRADUCIDA
     alert(t('address_modal.error_fields'))
@@ -197,8 +274,13 @@ const saveAddress = () => {
           </div>
           <div v-if="currentStep === 1 && !authStore.isAuthenticated" class="step-content">
             <p class="step-question">{{ $t('checkout.login_prompt.message') }}</p>
-            <button @click="goToLogin" class="btn-primary">{{ $t('checkout.login_prompt.login_btn') }}</button>
-            <p class="step-question mt-4"></p> <button @click="goToRegister" class="btn-primary">{{ $t('checkout.login_prompt.register_btn') }}</button>
+            <button @click="goToLogin" class="btn-primary">
+              {{ $t('checkout.login_prompt.login_btn') }}
+            </button>
+            <p class="step-question mt-4"></p>
+            <button @click="goToRegister" class="btn-primary">
+              {{ $t('checkout.login_prompt.register_btn') }}
+            </button>
           </div>
           <div v-if="currentStep > 1" class="step-summary">
             <p class="summary-line">
@@ -284,7 +366,9 @@ const saveAddress = () => {
                     <strong>{{ store.nombre }}</strong>
                   </p>
                   <p class="addr-info">{{ store.direccion }}</p>
-                  <p class="addr-info"><small>{{ $t('checkout.shipping.store_hours') }} {{ store.horario }}</small></p>
+                  <p class="addr-info">
+                    <small>{{ $t('checkout.shipping.store_hours') }} {{ store.horario }}</small>
+                  </p>
                 </div>
               </div>
             </div>
@@ -338,8 +422,11 @@ const saveAddress = () => {
                 </div>
               </label>
             </div>
-            <div v-if="selectedPaymentMethod === 'card'" style="margin-top: 15px; color: #666; font-size: 0.9rem;">
-                🔒 {{ $t('checkout.payment.secure_msg') }}
+            <div
+              v-if="selectedPaymentMethod === 'card'"
+              style="margin-top: 15px; color: #666; font-size: 0.9rem"
+            >
+              🔒 {{ $t('checkout.payment.secure_msg') }}
             </div>
           </div>
         </div>
@@ -354,9 +441,15 @@ const saveAddress = () => {
           </div>
           <div class="summary-row">
             <span>{{ $t('checkout.summary.shipping') }}</span>
-            <span v-if="deliveryMethod === 'store'" class="green-text">{{ $t('checkout.summary.free') }}</span>
+            <span v-if="deliveryMethod === 'store'" class="green-text">{{
+              $t('checkout.summary.free')
+            }}</span>
             <span v-else>
-              {{ shippingCostDisplay === 0 ? $t('checkout.summary.free') : formatPrice(shippingCostDisplay) + ' €' }}
+              {{
+                shippingCostDisplay === 0
+                  ? $t('checkout.summary.free')
+                  : formatPrice(shippingCostDisplay) + ' €'
+              }}
             </span>
           </div>
           <div class="summary-row total">
@@ -364,22 +457,24 @@ const saveAddress = () => {
             <span>{{ formatPrice(totalDisplay) }} €</span>
           </div>
           <small class="tax-text">{{ $t('checkout.summary.VAT') }}</small>
-          
+
           <button
             class="btn-checkout"
             :class="{ disabled: !canCheckout }"
             :disabled="!canCheckout"
             @click="finalizePurchase"
           >
-             {{ $t('checkout.payment.pay_btn', { amount: formatPrice(totalDisplay) + ' €' }) }}
+            {{ $t('checkout.payment.pay_btn', { amount: formatPrice(totalDisplay) + ' €' }) }}
           </button>
-          
+
           <div class="shipping-info">
-            <span v-if="deliveryMethod === 'store'">🏪 {{ $t('checkout.shipping.delivery_options.store') }}</span>
+            <span v-if="deliveryMethod === 'store'"
+              >🏪 {{ $t('checkout.shipping.delivery_options.store') }}</span
+            >
             <span v-else>🚚 {{ $t('cart.trust.shipping') || 'Envío gratis > 49€' }}</span>
           </div>
         </div>
-        
+
         <div class="summary-card products-card">
           <h3>{{ $t('checkout.my_products') }}</h3>
           <div v-for="item in cartStore.items" :key="item.id" class="mini-product">
@@ -418,7 +513,9 @@ const saveAddress = () => {
         <p class="info-text">
           {{ $t('checkout.success.message') }}
         </p>
-        <button class="btn-back-home" @click="goToHome">{{ $t('checkout.success.home_btn') }}</button>
+        <button class="btn-back-home" @click="goToHome">
+          {{ $t('checkout.success.home_btn') }}
+        </button>
       </div>
     </div>
   </div>
