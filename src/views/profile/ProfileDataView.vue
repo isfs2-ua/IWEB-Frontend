@@ -1,11 +1,88 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 import ProfileSidebar from '@/components/ProfileSidebar.vue'
+import BaseModal from '@/components/BaseModal.vue'
+import UserEditForm from '@/components/UserEditForm.vue'
+// Importa tu componente de notificación si lo tienes, o usa alert()
 
+const { t } = useI18n()
 const authStore = useAuthStore()
-const user = authStore.user 
+const { user } = storeToRefs(authStore)
 
 const sportsList = ['running', 'cycling', 'football', 'basketball', 'tennis', 'swimming', 'other']
+
+// --- LÓGICA DEL MODAL ---
+const isEditModalOpen = ref(false)
+const isSaving = ref(false)
+
+const editData = ref({
+  username: '',
+  email: '',
+  nombre: '',
+  apellidos: '',
+  telefono: '',
+  fechaNacimiento: ''
+})
+
+// HELPER 1: Backend (dd-MM-yyyy) -> Input (yyyy-MM-dd)
+const formatDateForInput = (dateStr: string | undefined): string => {
+  if (!dateStr) return ''
+  // Si ya viene en formato yyyy-MM-dd lo dejamos, si no, lo invertimos
+  if (dateStr.includes('/')) dateStr = dateStr.replace(/\//g, '-') // Asegurar guiones
+  const parts = dateStr.split('-')
+  if (parts[0].length === 4) return dateStr // Ya es yyyy-MM-dd
+  return `${parts[2]}-${parts[1]}-${parts[0]}` // dd-MM-yyyy -> yyyy-MM-dd
+}
+
+// HELPER 2: Input (yyyy-MM-dd) -> Backend (dd-MM-yyyy)
+const formatDateForBackend = (dateStr: string): string | null => {
+  if (!dateStr) return null // <--- IMPORTANTE: null en vez de ''
+  const parts = dateStr.split('-')
+  // Aseguramos que tenga 3 partes antes de reordenar
+  if (parts.length !== 3) return null
+  return `${parts[2]}-${parts[1]}-${parts[0]}`
+}
+
+const openEditModal = () => {
+  if (!user.value) return
+
+  editData.value = {
+    username: user.value.username || '',
+    email: user.value.email || '',
+    nombre: user.value.nombre || '',
+    apellidos: user.value.apellidos || '',
+    telefono: user.value.telefono || '',
+    // AQUI USAMOS EL HELPER PARA QUE EL INPUT LA LEA
+    fechaNacimiento: formatDateForInput(user.value.fechaNacimiento)
+  }
+  isEditModalOpen.value = true
+}
+
+const handleSaveChanges = async () => {
+  isSaving.value = true
+  
+  // Limpieza de datos crítica para pasar las validaciones @Size y @JsonFormat
+  const payload = {
+    ...editData.value,
+    // Si el teléfono está vacío, enviamos null para saltar la validación @Size(min=9)
+    telefono: editData.value.telefono.trim() === '' ? null : editData.value.telefono,
+    // Si la fecha es inválida o vacía, enviamos null
+    fechaNacimiento: formatDateForBackend(editData.value.fechaNacimiento)
+  }
+
+  const success = await authStore.updateProfile(payload)
+  isSaving.value = false
+  
+  if (success) {
+    isEditModalOpen.value = false
+    alert(t('common.save_success') || 'Datos actualizados correctamente') // O tu Toast
+  } else {
+    alert(t('errors.generic') || 'Error al actualizar')
+  }
+}
 </script>
 
 <template>
@@ -26,7 +103,7 @@ const sportsList = ['running', 'cycling', 'football', 'basketball', 'tennis', 's
             <p>{{ user?.username }}</p>
           </div>
           <div class="action-col">
-            <button class="btn-edit">{{ $t('common.edit') }}</button>
+            <button class="btn-edit" @click="openEditModal">{{ $t('common.edit') }}</button>
           </div>
         </div>
 
@@ -43,7 +120,6 @@ const sportsList = ['running', 'cycling', 'football', 'basketball', 'tennis', 's
             <p>********</p>
           </div>
         </div>
-
         <hr class="divider" />
       </section>
 
@@ -64,21 +140,18 @@ const sportsList = ['running', 'cycling', 'football', 'basketball', 'tennis', 's
               <p>{{ user?.apellidos }}</p>
             </div>
             <div class="action-col">
-              <button class="btn-edit">{{ $t('common.edit') }}</button>
+               <button class="btn-edit" @click="openEditModal">{{ $t('common.edit') }}</button>
             </div>
           </div>
-
           <div class="data-item">
             <label>{{ $t('profile.data.phone') }}</label>
             <p>{{ user?.telefono }}</p>
           </div>
-
           <div class="data-item">
             <label>{{ $t('profile.data.birthdate') }}</label>
             <p>{{ user?.fechaNacimiento }}</p>
           </div>
         </div>
-
         <hr class="divider" />
       </section>
 
@@ -90,49 +163,11 @@ const sportsList = ['running', 'cycling', 'football', 'basketball', 'tennis', 's
             <button class="btn-edit">{{ $t('common.edit') }}</button>
           </div>
         </div>
-
         <div v-for="form in user?.formularios" :key="form.id" class="preference-card">
-          <h4>{{ $t('profile.data.customize') }}</h4>
-
-          <div class="card-grid">
-            <div class="left-col">
-              <div class="form-group">
-                <label>{{ $t('profile.data.gender') }}</label>
-                <select v-model="form.genero" class="input-field">
-                  <option value="Hombre">{{ $t('profile.data.gender_options.male') }}</option>
-                  <option value="Mujer">{{ $t('profile.data.gender_options.female') }}</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>{{ $t('profile.data.size') }}</label>
-                <select v-model="form.talla" class="input-field">
-                  <option>L</option>
-                  <option>M</option>
-                  <option>S</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>{{ $t('profile.data.foot_size') }}</label>
-                <input type="text" v-model="form.tallaPie" class="input-field" />
-              </div>
-            </div>
-
-            <div class="right-col">
-              <label class="checkbox-label">{{ $t('profile.data.interests') }}</label>
-              <div class="checkbox-list">
-                <label v-for="sportKey in sportsList" :key="sportKey" class="checkbox-item">
-                  <input type="checkbox" :value="sportKey" v-model="form.intereses" />
-                  <span>
-                    {{ sportKey === 'other' ? $t('common.other') : $t('sports_list.' + sportKey) }}
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
+            <h4>{{ $t('profile.data.customize') }}</h4>
+             <div class="card-grid">
+                 </div>
         </div>
-
         <hr class="divider" />
       </section>
 
@@ -140,6 +175,26 @@ const sportsList = ['running', 'cycling', 'football', 'basketball', 'tennis', 's
         <button class="btn-text-danger">{{ $t('profile.data.delete_account') }}</button>
       </section>
     </div>
+
+    <BaseModal 
+      :show="isEditModalOpen" 
+      :title="$t('profile.data.edit_title') || 'Editar Perfil'" 
+      @close="isEditModalOpen = false"
+    >
+      <UserEditForm v-model="editData" />
+
+      <template #footer>
+        <div class="modal-actions">
+          <button class="btn-secondary" @click="isEditModalOpen = false">
+            {{ $t('common.cancel') }}
+          </button>
+          <button class="btn-primary" @click="handleSaveChanges" :disabled="isSaving">
+            {{ isSaving ? '...' : $t('common.save') }}
+          </button>
+        </div>
+      </template>
+    </BaseModal>
+
   </div>
 </template>
 
@@ -331,5 +386,43 @@ p {
   .card-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ... tus estilos anteriores ... */
+
+/* ESTILOS PARA LOS BOTONES DEL MODAL */
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+.btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #eee;
+  color: #333;
+}
+
+.btn-primary:hover:not(:disabled),
+.btn-secondary:hover {
+  opacity: 0.8;
 }
 </style>

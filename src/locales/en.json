@@ -44,7 +44,8 @@
     "other": "Other",
     "all": "All",
     "child_male": "Boy",
-    "child_female": "Girl"
+    "child_female": "Girl",
+    "save": "Save"
   },
   "address": {
     "full_name": "Full Name",
@@ -96,6 +97,7 @@
     "data": {
       "title": "My Profile",
       "account_section": "Account Details",
+      "edit_title": "Edit Profile",
       "username": "Username",
       "email": "Email",
       "password": "Password",
