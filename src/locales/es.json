@@ -21,6 +21,18 @@
     "more_sports": "Más deportes",
     "nutrition": "Nutrición y recuperación"
   },
+  "categories": {
+    "running": "Running",
+    "ciclismo": "Ciclismo",
+    "futbol": "Fútbol",
+    "baloncesto": "Baloncesto",
+    "tenis": "Tenis",
+    "natacion": "Natación",
+    "mas-deportes": "Más deportes",
+    "nutricion": "Nutrición",
+    "otros": "Otros Deportes",
+    "all_products": "Todos"
+  },
   "footer": {
     "about": "Sobre Nosotros",
     "who_we_are": "Quiénes somos",
@@ -551,11 +563,15 @@
   },
   "product_detail": {
     "other_colors": "Otros colores",
+    "select_color": "Selecciona un color",
+    "first_select_color": "Selecciona un color primero",
     "select_size": "Selecciona una talla",
     "quantity": "Cantidad:",
     "in_stock": "En stock",
+    "low_stock": "Pocos artículos disponibles",
     "out_of_stock": "No disponible",
     "add_to_cart": "Añadir al carrito",
+    "login_required": "Debes iniciar sesión para comprar",
     "details": "Detalles",
     "features": "Características:",
     "composition": "Composición:",
@@ -565,8 +581,10 @@
     "not_found_msg": "Parece que el artículo que buscas no existe o ha sido eliminado.",
     "back_to_store": "Volver a la tienda",
     "notifications": {
+      "select_color_error": "Por favor, selecciona un color.",
       "select_size_error": "Por favor, selecciona una talla.",
       "added_success": "Producto añadido al carrito correctamente",
+      "add_error": "No se pudo añadir al carrito.",
       "wishlist_info": "Añadido a lista de deseos"
     }
   },
@@ -580,12 +598,6 @@
       "size_kids": "Niños",
       "foot_size": "Talla de pie",
       "color": "Color",
-      "stores": "Tiendas",
-      "stores_list": {
-        "madrid": "Madrid centro",
-        "barcelona": "Barcelona diagonal",
-        "valencia": "Valencia puerto"
-      },
       "gender_values": {
         "Hombre": "Hombre",
         "Mujer": "Mujer",

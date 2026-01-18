@@ -5,8 +5,10 @@ import { useProductStore } from '@/stores/products'
 import { useNotificationStore } from '@/stores/notification'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
 import type { Product, ProductVariant } from '@/types'
 
+const { t } = useI18n()
 const route = useRoute()
 const productStore = useProductStore()
 const notificationStore = useNotificationStore()
@@ -28,13 +30,11 @@ const quantity = ref(1)
 const showDetails = ref(true)
 const showReviews = ref(true)
 
-// --- HELPER STOCK SEGURO ---
 const getVariantStock = (v: ProductVariant | any): number => {
   if (!v) return 0
   return v.cantidadStock ?? v.cantidad_stock ?? v.stock ?? 0
 }
 
-// --- CARGA DE PRODUCTO ---
 const loadProduct = () => {
   loading.value = true
   const id = Number(route.params.id)
@@ -43,10 +43,10 @@ const loadProduct = () => {
   if (foundProduct) {
     product.value = foundProduct
 
-    // 1. Extraer Colores Únicos
+    // Extraer Colores Únicos
     if (product.value.variantes) {
       const colorsMap = product.value.variantes
-        .map((v: any) => v.color) // 'as any' para asegurar que leemos la propiedad aunque falte en la interfaz
+        .map((v: any) => v.color)
         .filter((c: string) => c)
 
       uniqueColors.value = [...new Set(colorsMap)]
@@ -69,8 +69,6 @@ const loadProduct = () => {
 onMounted(loadProduct)
 watch(() => route.params.id, loadProduct)
 
-// --- COMPUTADOS ---
-
 const availableSizes = computed(() => {
   if (!product.value?.variantes) return []
 
@@ -85,56 +83,37 @@ const availableSizes = computed(() => {
   return [...new Set(sizes)]
 })
 
-// --- WATCHERS PARA AUTO-SELECCIÓN ---
-
-// 1. Auto-seleccionar Color si solo hay uno
 watch(
   () => uniqueColors.value,
   (colors) => {
-    if (colors.length === 1) {
-      selectedColor.value = colors[0]
-    }
+    if (colors.length === 1) selectedColor.value = colors[0]
   },
   { immediate: true },
 )
 
-// 2. Auto-seleccionar Talla si solo hay una opción disponible
 watch(
   availableSizes,
   (sizes) => {
-    if (sizes.length === 1) {
-      selectedSize.value = sizes[0]
-    }
+    if (sizes.length === 1) selectedSize.value = sizes[0]
   },
   { immediate: true },
 )
 
-// 3. Resetear talla si cambia el color (y hay más de una talla)
 watch(selectedColor, () => {
-  if (availableSizes.value.length > 1) {
-    selectedSize.value = ''
-  }
+  if (availableSizes.value.length > 1) selectedSize.value = ''
 })
 
-// --- CÁLCULO DE STOCK ---
 const currentStock = computed(() => {
   if (!product.value?.variantes) return 0
-
-  // Si solo hay 1 variante absoluta
   if (product.value.variantes.length === 1) {
     return getVariantStock(product.value.variantes[0])
   }
-
-  // Búsqueda normal
   const variant = product.value.variantes.find((v: any) => {
     const nombreTalla = v.talla || 'Talla Única'
     const matchSize = nombreTalla === selectedSize.value
-
     const matchColor = uniqueColors.value.length > 0 ? v.color === selectedColor.value : true
-
     return matchSize && matchColor
   })
-
   return getVariantStock(variant)
 })
 
@@ -145,11 +124,9 @@ const isOutOfStock = computed(() => {
   return false
 })
 
-// --- ACCIONES ---
-
 const addToCart = async () => {
   if (!authStore.isAuthenticated) {
-    notificationStore.showNotification('Debes iniciar sesión para comprar', 'info')
+    notificationStore.showNotification(t('product_detail.login_required'), 'info')
     return
   }
 
@@ -158,13 +135,12 @@ const addToCart = async () => {
   if (product.value?.variantes?.length === 1) {
     variant = product.value.variantes[0]
   } else {
-    // Validaciones
     if (uniqueColors.value.length > 0 && !selectedColor.value) {
-      notificationStore.showNotification('Por favor, selecciona un color.', 'error')
+      notificationStore.showNotification(t('product_detail.notifications.select_color_error'), 'error')
       return
     }
     if (availableSizes.value.length > 1 && !selectedSize.value) {
-      notificationStore.showNotification('Por favor, selecciona una talla.', 'error')
+      notificationStore.showNotification(t('product_detail.notifications.select_size_error'), 'error')
       return
     }
 
@@ -183,15 +159,15 @@ const addToCart = async () => {
 
   try {
     await cartStore.addItem(variant.id, quantity.value)
-    notificationStore.showNotification('¡Producto añadido al carrito!', 'success')
+    notificationStore.showNotification(t('product_detail.notifications.added_success'), 'success')
   } catch (error) {
     console.error(error)
-    notificationStore.showNotification('No se pudo añadir al carrito.', 'error')
+    notificationStore.showNotification(t('product_detail.notifications.add_error'), 'error')
   }
 }
 
 const toggleWishlist = () => {
-  notificationStore.showNotification('Añadido a lista de deseos', 'info')
+  notificationStore.showNotification(t('product_detail.notifications.wishlist_info'), 'info')
 }
 </script>
 
@@ -228,7 +204,7 @@ const toggleWishlist = () => {
         </div>
 
         <div class="color-selection" v-if="product.otros_colores_img?.length">
-          <p class="label">Otros modelos disponibles</p>
+          <p class="label">{{ $t('product_detail.other_colors') }}</p>
           <div class="color-thumbs">
             <div class="color-thumb active">
               <img :src="product.media?.[0].url" alt="Modelo actual" />
@@ -244,21 +220,23 @@ const toggleWishlist = () => {
         </div>
 
         <div class="form-group" v-if="uniqueColors.length > 1">
-          <label class="label">Color:</label>
+          <label class="label">{{ $t('search_page.filters.color') }}:</label>
           <select v-model="selectedColor" class="size-select">
-            <option value="" disabled>Selecciona un color</option>
+            <option value="" disabled>{{ $t('product_detail.select_color') }}</option>
             <option v-for="color in uniqueColors" :key="color" :value="color">
-              {{ color }}
+              {{ $te('colors.' + color.toLowerCase()) ? $t('colors.' + color.toLowerCase()) : color }}
             </option>
           </select>
         </div>
         <div class="form-group" v-else-if="uniqueColors.length === 1">
-          <label class="label">Color:</label>
-          <span class="static-size-text">{{ uniqueColors[0] }}</span>
+           <label class="label">{{ $t('search_page.filters.color') }}:</label>
+           <span class="static-size-text">
+             {{ $te('colors.' + uniqueColors[0].toLowerCase()) ? $t('colors.' + uniqueColors[0].toLowerCase()) : uniqueColors[0] }}
+           </span>
         </div>
 
         <div class="form-group" v-if="availableSizes.length > 1">
-          <label class="label">Talla:</label>
+          <label class="label">{{ $t('search_page.filters.size') }}:</label>
           <select
             v-model="selectedSize"
             class="size-select"
@@ -267,8 +245,8 @@ const toggleWishlist = () => {
             <option value="" disabled>
               {{
                 uniqueColors.length > 0 && !selectedColor
-                  ? 'Primero elige color'
-                  : 'Selecciona una talla'
+                  ? $t('product_detail.first_select_color')
+                  : $t('product_detail.select_size')
               }}
             </option>
             <option v-for="talla in availableSizes" :key="talla" :value="talla">
@@ -281,13 +259,13 @@ const toggleWishlist = () => {
           class="form-group"
           v-else-if="availableSizes.length === 1 && availableSizes[0] !== 'Talla Única'"
         >
-          <label class="label">Talla:</label>
+          <label class="label">{{ $t('search_page.filters.size') }}:</label>
           <span class="static-size-text">{{ availableSizes[0] }}</span>
         </div>
 
         <div class="purchase-row">
           <div class="quantity-wrapper">
-            <label>Cantidad:</label>
+            <label>{{ $t('product_detail.quantity') }}</label>
             <input
               type="number"
               v-model="quantity"
@@ -298,14 +276,14 @@ const toggleWishlist = () => {
 
           <div class="stock-status">
             <span v-if="uniqueColors.length > 1 && !selectedColor" class="text-gray"
-              >Elige color</span
+              >{{ $t('product_detail.select_color') }}</span
             >
             <span v-else-if="availableSizes.length > 1 && !selectedSize" class="text-gray"
-              >Elige talla</span
+              >{{ $t('product_detail.select_size') }}</span
             >
-            <span v-else-if="currentStock > 5" class="in-stock">En stock</span>
-            <span v-else-if="currentStock <= 5" class="in-low-stock">Quedan pocas unidades</span>
-            <span v-else class="out-stock">Agotado</span>
+            <span v-else-if="currentStock > 5" class="in-stock">{{ $t('product_detail.in_stock') }}</span>
+            <span v-else-if="currentStock <= 5" class="in-low-stock">{{ $t('product_detail.low_stock') }}</span>
+            <span v-else class="out-stock">{{ $t('product_detail.out_of_stock') }}</span>
           </div>
         </div>
 
@@ -316,7 +294,7 @@ const toggleWishlist = () => {
             :disabled="isOutOfStock"
             :class="{ disabled: isOutOfStock }"
           >
-            {{ currentStock <= 0 ? 'Agotado' : 'Añadir al carrito' }}
+            {{ currentStock <= 0 ? $t('product_detail.out_of_stock') : $t('product_detail.add_to_cart') }}
           </button>
           <button @click="toggleWishlist" class="btn-wishlist">♡</button>
         </div>
@@ -326,39 +304,33 @@ const toggleWishlist = () => {
     <div class="details-accordion">
       <div class="accordion-item">
         <div class="accordion-header" @click="showDetails = !showDetails">
-          <h2>Detalles</h2>
+          <h2>{{ $t('product_detail.details') }}</h2>
           <span class="chevron" :class="{ rotated: showDetails }">^</span>
         </div>
         <div v-show="showDetails" class="accordion-content">
           <p class="description">{{ product.descripcionLarga }}</p>
           <div v-if="product.caracteristicas">
-            <h4>Características:</h4>
+            <h4>{{ $t('product_detail.features') }}</h4>
             <ul>
               <li v-for="(car, idx) in product.caracteristicas" :key="idx">{{ car }}</li>
             </ul>
           </div>
           <div v-if="product.composicion" class="composition">
-            <strong>Composición:</strong> {{ product.composicion }}
+            <strong>{{ $t('product_detail.composition') }}</strong> {{ product.composicion }}
           </div>
         </div>
       </div>
 
       <div class="accordion-item">
         <div class="accordion-header" @click="showReviews = !showReviews">
-          <h2 class="orange-text">Opiniones ({{ product.reviews?.length || 0 }})</h2>
+          <h2 class="orange-text">{{ $t('product_detail.reviews', { count: product.reviews?.length || 0 }) }}</h2>
           <span class="chevron" :class="{ rotated: showReviews }">^</span>
         </div>
         <div v-show="showReviews" class="accordion-content">
           <div v-for="review in product.reviews" :key="review.id" class="review-card">
             <div class="review-header">
               <div class="stars-row">
-                <span
-                  v-for="n in 5"
-                  :key="n"
-                  class="star"
-                  :class="{ filled: n <= review.valoracion }"
-                  >★</span
-                >
+                <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= review.valoracion }">★</span>
               </div>
               <span class="review-title">{{ review.titulo }}</span>
               <span class="review-date">{{ review.fecha }}</span>
@@ -373,17 +345,16 @@ const toggleWishlist = () => {
 
   <div v-else-if="loading" class="container feedback-msg">
     <div class="spinner"></div>
-    <p>Cargando producto...</p>
+    <p>{{ $t('product_detail.loading') }}</p>
   </div>
 
   <div v-else class="container feedback-msg">
-    <h2>⚠️ Producto no encontrado</h2>
-    <RouterLink to="/" class="btn-primary" style="margin-top: 20px">Volver a la tienda</RouterLink>
+    <h2>{{ $t('product_detail.not_found') }}</h2>
+    <RouterLink to="/" class="btn-primary" style="margin-top: 20px">{{ $t('product_detail.back_to_store') }}</RouterLink>
   </div>
 </template>
 
 <style scoped>
-/* ESTILOS (Sin cambios) */
 .feedback-msg {
   text-align: center;
   padding: 100px 20px;

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/products'
 import { useI18n } from 'vue-i18n'
 import ProductCard from '@/components/ProductCard.vue'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const route = useRoute()
 const productStore = useProductStore()
 
@@ -17,7 +17,7 @@ const selectedColors = ref<string[]>([])
 const priceRange = ref(275) 
 
 // DATOS ESTÁTICOS
-const brandsList = ['Adidas', 'Nike', 'Reebok', 'New Balance', 'Endura', 'Joma', 'Puma', 'Sportful']
+const brandsList = ['Adidas', 'Nike', 'Puma', 'Molten', 'Speedo']
 
 const genderOptions = ['Hombre', 'Mujer', 'Niño', 'Niña']
 const adultSizes = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']
@@ -42,7 +42,18 @@ const searchTerm = computed(() => ((route.query.q as string) || '').toLowerCase(
 
 const filteredProducts = computed(() => {
   return productStore.allProducts.filter((product) => {
-    // Texto
+
+    // 1. Filtro por Categoría (mantenemos tu lógica existente)
+    const categoryParam = route.params.categoryName as string
+    if (categoryParam) {
+      const normalizedParam = normalizeText(categoryParam)
+      const hasCategory = product.categorias?.some(cat => 
+        normalizeText(cat.nombre).includes(normalizedParam)
+      )
+      if (!hasCategory) return false
+    }
+
+    // 2. Filtro de Texto
     if (
       searchTerm.value &&
       !product.nombre.toLowerCase().includes(searchTerm.value) &&
@@ -50,14 +61,15 @@ const filteredProducts = computed(() => {
     ) {
       return false
     }
-    // Precio
+
+    // 3. Filtro de Precio
     if (product.precio > priceRange.value) return false
 
-    // Marcas
+    // 4. Filtro de Marca
     if (selectedBrands.value.length > 0 && !selectedBrands.value.includes(product.marca))
       return false
 
-    // Género
+    // 5. Filtro de Género
     if (
       selectedGender.value.length > 0 &&
       product.genero &&
@@ -65,15 +77,31 @@ const filteredProducts = computed(() => {
     )
       return false
 
-    // Tallas
-    if (selectedSizes.value.length > 0 && product.tallas) {
-      const hasSize = product.tallas.some((t) => selectedSizes.value.includes(t))
+    // --- CORRECCIÓN AQUÍ: TALLAS Y COLORES ---
+
+    // 6. Filtro de Tallas (Ropa y Calzado)
+    // Buscamos si ALGUNA variante tiene una talla que coincida con las seleccionadas
+    if (selectedSizes.value.length > 0) {
+      // Si el producto no tiene variantes, no puede tener talla, así que fuera
+      if (!product.variantes) return false
+      
+      const hasSize = product.variantes.some((variant) => 
+        // Verificamos que la variante tenga talla y esté en la lista seleccionada
+        variant.talla && selectedSizes.value.includes(variant.talla)
+      )
+      
       if (!hasSize) return false
     }
 
-    // Colores
-    if (selectedColors.value.length > 0 && product.colores) {
-      const hasColor = product.colores.some((c) => selectedColors.value.includes(c))
+    // 7. Filtro de Colores
+    // Mismo proceso: miramos dentro de las variantes
+    if (selectedColors.value.length > 0) {
+      if (!product.variantes) return false
+
+      const hasColor = product.variantes.some((variant) => 
+        variant.color && selectedColors.value.includes(variant.color)
+      )
+      
       if (!hasColor) return false
     }
 
@@ -87,6 +115,22 @@ const toggleSelection = (array: string[], value: string) => {
   if (index === -1) array.push(value)
   else array.splice(index, 1)
 }
+
+const normalizeText = (text: string) => {
+  return text
+    ? text.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // Quitar acentos
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "")       //Quita espacios, guiones y símbolos
+    : ''
+}
+
+onMounted(() => {
+  if (productStore.allProducts.length === 0) {
+    productStore.fetchProducts()
+  }
+})
+
 </script>
 
 <template>
@@ -194,19 +238,23 @@ const toggleSelection = (array: string[], value: string) => {
             </div>
           </div>
         </div>
-
-        <div class="filter-group">
-          <h3>{{ $t('search_page.filters.stores') }}</h3>
-          <div class="checkbox-list">
-            <label class="checkbox-item"><input type="checkbox" /> {{ $t('search_page.filters.stores_list.madrid') }}</label>
-            <label class="checkbox-item"><input type="checkbox" /> {{ $t('search_page.filters.stores_list.barcelona') }}</label>
-            <label class="checkbox-item"><input type="checkbox" /> {{ $t('search_page.filters.stores_list.valencia') }}</label>
-          </div>
-        </div>
+        
       </aside>
 
       <section class="results-content">
-        <h2 class="results-title">{{ $t('search_page.results.title') }}</h2>
+        <h2 class="results-title">
+          <span v-if="route.params.categoryName">
+            <span v-if="te('categories.' + route.params.categoryName)">
+              {{ $t('categories.' + route.params.categoryName) }}
+            </span>
+            <span v-else style="text-transform: capitalize;">
+              {{ route.params.categoryName }}
+            </span>
+          </span>
+          <span v-else>
+            {{ $t('search_page.results.title') }}
+          </span>
+        </h2>
 
         <div v-if="filteredProducts.length > 0" class="products-grid">
           <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product" />
@@ -341,7 +389,6 @@ const toggleSelection = (array: string[], value: string) => {
   border-color: var(--color-primary);
 }
 
-/* Botones Talla (Cuadrados con borde redondeado) */
 .sizes-grid {
   display: flex;
   flex-wrap: wrap;
@@ -350,7 +397,7 @@ const toggleSelection = (array: string[], value: string) => {
 .size-btn {
   border: 1px solid #ddd;
   background: white;
-  border-radius: 6px; /* Borde suave como mockup */
+  border-radius: 6px;
   min-width: 35px;
   height: 30px;
   display: flex;
@@ -371,7 +418,6 @@ const toggleSelection = (array: string[], value: string) => {
   border-color: var(--color-primary);
 }
 
-/* Colores (Círculos) */
 .color-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -405,7 +451,6 @@ const toggleSelection = (array: string[], value: string) => {
   text-align: center;
 }
 
-/* RESULTADOS */
 .results-title {
   color: var(--color-primary);
   font-size: 1.5rem;
