@@ -22,7 +22,7 @@ const emit = defineEmits(['close', 'confirm'])
           <button class="btn-secondary" @click="$emit('close')">
             {{ $t('common.cancel') }}
           </button>
-          
+
           <button class="btn-primary" @click="$emit('confirm')">
             {{ $t('common.confirm') }}
           </button>

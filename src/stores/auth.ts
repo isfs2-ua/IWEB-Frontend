@@ -18,6 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = newToken
       localStorage.setItem('token', newToken)
       user.value = userData
+      localStorage.setItem('user', JSON.stringify(userData))
       return true
     } catch (error) {
       console.error('Error en login:', error)

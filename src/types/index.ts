@@ -59,15 +59,6 @@ export interface Product {
   otros_colores_img?: string[] // URLs de las fotitos de otros colores
 }
 
-export interface CartItem {
-  id: number
-  usuario_id: number
-  producto_id: number
-  cantidad: number
-  // En el frontend solemos necesitar datos del producto para mostrarlo (nombre, img) así que extendemos un poco la interfaz base de la BD.
-  producto?: Product
-}
-
 export interface UserPreferences {
   id: number
   alias: string // Ej: "Mi perfil", "Hijo mayor", etc.
